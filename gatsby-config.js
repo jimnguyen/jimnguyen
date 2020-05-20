@@ -7,5 +7,4 @@ module.exports = {
       },
     },
   ],
-  pathPrefix: "/jimnguyen.github.io",
 }
