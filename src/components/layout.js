@@ -17,6 +17,8 @@ export default function Layout({ children }) {
     width: "100%",
     color: "white",
     textAlign: "center",
+    marginTop: "20px",
+    height: "1em",
   }
 
   return (
@@ -39,9 +41,9 @@ export default function Layout({ children }) {
         </ul>
       </header>
       {children}
-      <footer style={footerStyle}>
-        <h3 style={{ color: `white` }}>Jim Nguyen</h3>
-      </footer>
+      {/* <footer style={footerStyle}>
+        <h3 style={{ color: `white`, textAlign: "top" }}>Jim Nguyen</h3>
+      </footer> */}
     </div>
   )
 }
