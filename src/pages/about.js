@@ -5,7 +5,7 @@ import AliceCarousel from "react-alice-carousel"
 import "react-alice-carousel/lib/alice-carousel.css"
 
 import image1 from "../assets/pic1.jpg"
-import image2 from "../assets/pic2.jpg"
+import image2 from "../assets/pic2new.jpg"
 import image3 from "../assets/pic3.jpg"
 import image4 from "../assets/pic4.jpg"
 import image5 from "../assets/pic5.jpg"
@@ -18,7 +18,8 @@ export default function About() {
       <h1>About Me</h1>
       <p>
         Software Developer from Bellevue, WA <br />
-        I enjoy hiking, computers, basketball, and traveling <br />
+        I enjoy hiking, computers, basketball, traveling, and my cat Chance 😺
+        <br />
       </p>
 
       <AliceCarousel>
