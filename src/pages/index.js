@@ -12,13 +12,17 @@ export default function Home() {
       <h1>Hi! Welcome to my website</h1>
       <h2>Projects</h2>
       <Card>
-        <strong>Amazon Clone</strong>
+        <strong>
+          <a href="https://amazon-clone.jimnguyen.dev">Amazon Clone</a>
+        </strong>
         <p>Built with React, Firebase, and Material-UI</p>
         <img src={amazon} alt="Amazon" />
       </Card>
       <br />
       <Card>
-        <strong>Burger Builder</strong>
+        <strong>
+          <a href="https://burger-builder.jimnguyen.dev">Burger Builder</a>
+        </strong>
         <p>Built with React, Redux, Firebase, and CSS Modules</p>
         <img src={burger} alt="Burger" />
       </Card>

@@ -16,7 +16,10 @@ export default function About() {
   return (
     <Layout>
       <h1>About Me</h1>
-      <p>Software Developer from Bellevue, WA</p>
+      <p>
+        Software Developer from Bellevue, WA <br />
+        I enjoy hiking, computers, basketball, and traveling <br />
+      </p>
 
       <AliceCarousel>
         <img src={image1} className="sliderimg" alt="image1" />
