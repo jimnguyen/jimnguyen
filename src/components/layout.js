@@ -8,18 +8,18 @@ const ListLink = props => (
 )
 
 export default function Layout({ children }) {
-  const footerStyle = {
-    padding: "6rem 0 4rem 0",
-    backgroundColor: "#262626",
-    position: "fixed",
-    left: 0,
-    bottom: 0,
-    width: "100%",
-    color: "white",
-    textAlign: "center",
-    marginTop: "20px",
-    height: "1em",
-  }
+  // const footerStyle = {
+  //   padding: "6rem 0 4rem 0",
+  //   backgroundColor: "#262626",
+  //   position: "fixed",
+  //   left: 0,
+  //   bottom: 0,
+  //   width: "100%",
+  //   color: "white",
+  //   textAlign: "center",
+  //   marginTop: "20px",
+  //   height: "1em",
+  // }
 
   return (
     <div
