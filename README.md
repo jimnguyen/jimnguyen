@@ -1,1 +1,1 @@
-Software Developer open for new opportunities
+Software Developer open to new opportunities
