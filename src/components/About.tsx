@@ -11,9 +11,10 @@ export function About() {
   return (
     <div className="grid gap-10 md:grid-cols-[1fr_1.4fr] md:items-start">
       <p className="text-lg text-text-muted">
-        I&apos;m a software developer based in Bellevue, WA, building web apps
-        end to end — from the database up through whatever framework is
-        having a moment. Outside of the editor I&apos;m usually hiking,
+        I&apos;m a software engineer based in San Francisco, originally from
+        Bellevue, WA, building web apps end to end — from the database up
+        through whatever framework is having a moment. Outside of the editor
+        I&apos;m usually hiking,
         shooting hoops, planning the next trip, or getting outvoted by my cat
         Chance on what to watch. 😺
       </p>
