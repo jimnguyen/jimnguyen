@@ -1,21 +1,11 @@
 import type { Project } from "@/types/project";
 
-import chickenImage from "@/assets/chicken.webp";
 import amazonImage from "@/assets/amazon.webp";
 import burgerImage from "@/assets/burger.webp";
 import restaurantImage from "@/assets/restaurant.webp";
 import profilesImage from "@/assets/profiles.webp";
 
 export const projects: Project[] = [
-  {
-    slug: "chicken-scaled",
-    title: "Chicken, Scaled.",
-    description:
-      "A single-file recipe calculator that scales a braised chicken sauce and slurry to whatever weight of chicken you're holding — type a number, watch every ingredient update live.",
-    tech: ["Vanilla JS", "HTML", "CSS"],
-    image: chickenImage,
-    liveUrl: "/chicken/",
-  },
   {
     slug: "amazon-clone",
     title: "Amazon Clone",
