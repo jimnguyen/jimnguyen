@@ -8,7 +8,7 @@ export const site = {
   resumeUrl: "/resume.pdf",
   social: {
     github: "https://www.github.com/jimnguyen",
-    linkedin: "https://www.linkedin.com/in/jimvnguyen-/",
+    linkedin: "https://www.linkedin.com/in/vjimnguyen/",
     instagram: "https://www.instagram.com/jimxnguyen",
   },
 };
