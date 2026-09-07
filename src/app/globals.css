@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --color-base-950: #0a0e14;
+  --color-base-900: #12161f;
+  --color-base-800: #1c212d;
+  --color-base-100: #eef1f6;
+  --color-base-50: #f7f9fc;
+
+  --color-ink-50: #f4f6fb;
+  --color-ink-300: #9aa4b8;
+  --color-ink-900: #0f1319;
+
+  --color-accent-400: #ff7a3d;
+  --color-accent-500: #ff5c1a;
+  --color-accent-600: #e0470c;
+
+  --color-accent2-400: #3ddcc7;
+  --color-accent2-500: #1ec4ae;
+
+  --color-bg: var(--color-base-50);
+  --color-bg-raised: #ffffff;
+  --color-border: #dde2ea;
+  --color-text: var(--color-ink-900);
+  --color-text-muted: #566072;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: var(--color-base-950);
+  --color-bg-raised: var(--color-base-900);
+  --color-border: var(--color-base-800);
+  --color-text: var(--color-ink-50);
+  --color-text-muted: var(--color-ink-300);
+}
+
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-bg-raised: var(--color-bg-raised);
+  --color-border: var(--color-border);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-500: var(--color-accent-500);
+  --color-accent-600: var(--color-accent-600);
+  --color-accent2-400: var(--color-accent2-400);
+  --color-accent2-500: var(--color-accent2-500);
+
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+  --font-label: var(--font-jetbrains-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: var(--color-base-950);
+    --color-bg-raised: var(--color-base-900);
+    --color-border: var(--color-base-800);
+    --color-text: var(--color-ink-50);
+    --color-text-muted: var(--color-ink-300);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-accent-500);
+  color: #fff;
+}

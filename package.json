@@ -2,40 +2,33 @@
   "name": "personal-website",
   "private": true,
   "description": "Jim Nguyen's personal website",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "homepage": "https://jimnguyen.dev",
   "scripts": {
-    "build": "gatsby build",
-    "develop": "gatsby develop",
-    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
-    "start": "npm run develop",
-    "deploy": "gatsby build --prefix-paths && gh-pages -d public",
-    "serve": "gatsby serve",
-    "clean": "gatsby clean",
-    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "dependencies": {
-    "@material-ui/core": "^4.11.3",
-    "@material-ui/icons": "^4.11.2",
-    "gatsby": "^2.21.22",
-    "gatsby-plugin-typography": "^2.5.1",
-    "react": "^16.12.0",
-    "react-alice-carousel": "^2.4.0",
-    "react-dom": "^16.12.0",
-    "react-typography": "^0.16.19",
-    "typography": "^0.16.19",
-    "typography-theme-fairy-gates": "^0.16.19"
+    "next": "16.3.4",
+    "next-themes": "^0.4.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "gh-pages": "^2.2.0",
-    "prettier": "2.0.5"
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jimnguyen/jimnguyen.github.io"
-  },
-  "bugs": {
-    "url": "https://github.com/gatsbyjs/gatsby/issues"
+    "url": "https://github.com/jimnguyen/jimnguyen"
   }
 }
