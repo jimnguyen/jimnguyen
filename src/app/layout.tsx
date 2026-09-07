@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { ScrollReset } from "@/components/ScrollReset";
 import { site } from "@/data/site";
 import "./globals.css";
 
@@ -47,7 +49,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
       <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent-500 selection:text-white">
+        <Script id="reset-scroll-on-load" strategy="beforeInteractive">
+          {`try{if(location.hash){history.replaceState(null,"",location.pathname+location.search)}}catch(e){}`}
+        </Script>
         <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
+          <ScrollReset />
           {children}
         </ThemeProvider>
       </body>
