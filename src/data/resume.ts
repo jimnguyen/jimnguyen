@@ -64,11 +64,6 @@ export const impactHighlights: ImpactHighlight[] = [
 
 export const resumeHighlights = [
   {
-    title: "Amazon Clone",
-    summary:
-      "Full-stack storefront with Firebase auth, realtime order history, and Stripe checkout.",
-  },
-  {
     title: "Burger Builder",
     summary:
       "Redux-driven SPA for building custom orders, with persistent state across refreshes.",

@@ -1,20 +1,10 @@
 import type { Project } from "@/types/project";
 
-import amazonImage from "@/assets/amazon.webp";
 import burgerImage from "@/assets/burger.webp";
 import restaurantImage from "@/assets/restaurant.webp";
 import profilesImage from "@/assets/profiles.webp";
 
 export const projects: Project[] = [
-  {
-    slug: "amazon-clone",
-    title: "Amazon Clone",
-    description:
-      "A full-stack storefront clone with real authentication and checkout — Firebase handles login, realtime order history, and Stripe processes payments end to end.",
-    tech: ["React", "Firebase", "Stripe", "Material-UI"],
-    image: amazonImage,
-    liveUrl: "https://amazon-clone.jimnguyen.dev",
-  },
   {
     slug: "burger-builder",
     title: "Burger Builder",
