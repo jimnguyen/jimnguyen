@@ -16,4 +16,8 @@ export const skillGroups: SkillGroup[] = [
     label: "Backend & Infra",
     skills: ["Node.js", "Django REST Framework", "Firebase", "AWS", "Git"],
   },
+  {
+    label: "Data & Cloud",
+    skills: ["Snowflake", "DynamoDB", "SQL", "Distributed Systems"],
+  },
 ];

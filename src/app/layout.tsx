@@ -50,7 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-screen bg-bg text-text antialiased selection:bg-accent-500 selection:text-white">
         <Script id="reset-scroll-on-load" strategy="beforeInteractive">
-          {`try{if(location.hash){history.replaceState(null,"",location.pathname+location.search)}}catch(e){}`}
+          {`try{var navEntry=performance.getEntriesByType&&performance.getEntriesByType("navigation")[0];var isReload=navEntry?navEntry.type==="reload":(performance.navigation&&performance.navigation.type===1);if(isReload&&location.hash){history.replaceState(null,"",location.pathname+location.search)}}catch(e){}`}
         </Script>
         <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
           <ScrollReset />

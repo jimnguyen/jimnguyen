@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { education, resumeHighlights } from "@/data/resume";
 import { site } from "@/data/site";
 
@@ -11,16 +12,24 @@ export function ResumeSummary() {
           {education.degree} · {education.graduated}
         </p>
 
-        <a
-          href={site.resumeUrl}
-          download
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-600"
-        >
-          Download full resume (PDF)
-          <svg viewBox="0 0 16 16" fill="none" strokeWidth="1.6" stroke="currentColor" className="h-3.5 w-3.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 2v8m0 0 3-3m-3 3-3-3M3 12.5h10" />
-          </svg>
-        </a>
+        <div className="mt-8 flex flex-col items-start gap-3">
+          <Link
+            href="/resume/"
+            className="inline-flex items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+          >
+            Open interactive resume
+            <svg viewBox="0 0 16 16" fill="none" strokeWidth="1.6" stroke="currentColor" className="h-3.5 w-3.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 3l5 5-5 5" />
+            </svg>
+          </Link>
+          <a
+            href={site.resumeUrl}
+            download
+            className="text-sm font-medium text-text-muted hover:text-accent-500"
+          >
+            or download the PDF
+          </a>
+        </div>
       </div>
 
       <div>
