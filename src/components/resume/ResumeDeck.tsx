@@ -50,7 +50,7 @@ export function ResumeDeck() {
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-10">
       <div className="flex items-center justify-between">
-        <Link href="/#resume" className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-accent-500">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-accent-500">
           <svg viewBox="0 0 16 16" fill="none" strokeWidth="1.8" stroke="currentColor" className="h-3.5 w-3.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M10 13 5 8l5-5" />
           </svg>

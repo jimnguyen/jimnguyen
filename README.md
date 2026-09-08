@@ -22,7 +22,7 @@ npm run build     # static export to out/
 ## Adding a playground app
 
 1. Drop a self-contained page at `public/apps/<slug>/index.html`
-2. Give it a back-link to `https://jimnguyen.dev/#playground` (see `public/apps/chicken/index.html` for the pattern)
+2. Give it a back-link to `https://jimnguyen.dev/` (see `public/apps/chicken/index.html` for the pattern)
 3. Add an entry to `src/data/apps.ts`
 
 ## Deployment
