@@ -58,6 +58,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <ScrollReset />
           {children}
         </ThemeProvider>
+        <Script
+          data-goatcounter="https://jimnguyen.goatcounter.com/count"
+          src="https://gc.zgo.at/count.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
