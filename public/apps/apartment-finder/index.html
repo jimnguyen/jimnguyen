@@ -5,7 +5,7 @@
 <meta name="description" content="Live feed of SF apartment listings matching a running Craigslist scraper's filters.">
 <title>SF Apartment Finder</title>
 <style>
-:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9}*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}main{max-width:1060px;margin:auto;padding:44px 24px 60px}header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:32px}.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 8px}h1{font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.06em;line-height:1.05;margin:0}header p{color:var(--muted);font-size:1rem;margin:8px 0 0}.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}.back-link:hover{color:var(--accent-dark)}.status{font-size:.875rem;color:var(--muted);margin:0 0 24px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column}.card h2{font-size:1.05rem;line-height:1.35;margin:0 0 8px}.price{font-size:1.4rem;font-weight:700;color:var(--accent-dark);margin:0 0 4px}.meta{color:var(--muted);font-size:.875rem;margin:0 0 14px}.badges{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--accent-tint);color:var(--accent-dark);padding:4px 9px;border-radius:999px}.card a.view{margin-top:auto;font-weight:600;color:var(--accent-dark);text-decoration:none}.card a.view:hover{text-decoration:underline}.empty,.error{color:var(--muted);padding:40px 0;text-align:center}footer{font-size:.8rem;color:var(--muted);margin-top:36px;max-width:720px}a{color:var(--accent-dark)}@media(max-width:720px){main{padding:26px 16px}}
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--green:#1a8a4a;--green-tint:#e9f7ef}*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}main{max-width:1060px;margin:auto;padding:44px 24px 60px}header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:32px}.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 8px}h1{font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.06em;line-height:1.05;margin:0}header p{color:var(--muted);font-size:1rem;margin:8px 0 0}.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}.back-link:hover{color:var(--accent-dark)}.status{font-size:.875rem;color:var(--muted);margin:0 0 24px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}.thumb{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--accent-tint);display:block}.thumb-placeholder{width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,var(--accent-tint),#eef1f6);display:flex;align-items:center;justify-content:center;font-size:2rem}.card-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}.card h2{font-size:1.05rem;line-height:1.35;margin:0 0 4px}.subtext{font-size:.8rem;color:var(--muted);margin:0 0 12px;line-height:1.4}.price{font-size:1.4rem;font-weight:700;color:var(--accent-dark);margin:0 0 4px}.meta{color:var(--muted);font-size:.875rem;margin:0 0 6px}.posted{color:var(--muted);font-size:.8rem;margin:0 0 14px}.badges{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--accent-tint);color:var(--accent-dark);padding:4px 9px;border-radius:999px}.parking-cost{font-size:.8rem;font-weight:700;color:var(--green);background:var(--green-tint);display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;margin:0 0 16px;align-self:flex-start}.card a.view{margin-top:auto;font-weight:600;color:var(--accent-dark);text-decoration:none}.card a.view:hover{text-decoration:underline}.empty,.error{color:var(--muted);padding:40px 0;text-align:center}footer{font-size:.8rem;color:var(--muted);margin-top:36px;max-width:720px}a{color:var(--accent-dark)}@media(max-width:720px){main{padding:26px 16px}}
 </style>
 </head>
 <body><main>
@@ -13,7 +13,7 @@
 <header>
 <p class="eyebrow">🏠 Playground / Live feed</p>
 <h1>SF Apartment Finder</h1>
-<p>3+ bed, 2+ bath, $6,000 max, laundry + parking + backyard required. Updated every 30 minutes by a Craigslist scraper.</p>
+<p>3+ bed, 2+ bath, $4,000&ndash;$6,000, laundry + parking + backyard required. Updated every 30 minutes by a Craigslist scraper.</p>
 </header>
 <p class="status" id="status">Loading current matches&hellip;</p>
 <div class="grid" id="grid"></div>
@@ -40,12 +40,44 @@ fetch('https://gist.githubusercontent.com/jimnguyen/e0723347b702dc52a89674e20bd3
     grid.innerHTML = '<p class="error">Couldn\'t load current listings (' + err.message + '). The feed may be temporarily unavailable.</p>';
   });
 
+// Recomputed fresh every time this script runs (page load/refresh) — never
+// baked into the stored data, so it's always accurate as of your visit.
+function timeOnCraigslist(isoString) {
+  if (!isoString) return null;
+  const postedMs = new Date(isoString).getTime();
+  if (Number.isNaN(postedMs)) return null;
+  const hours = Math.max(0, (Date.now() - postedMs) / 36e5);
+  if (hours < 1) return 'Posted <1h ago';
+  if (hours < 24) return `${Math.floor(hours)}h on Craigslist`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} on Craigslist`;
+}
+
 function listingCard(l) {
   const card = document.createElement('div');
   card.className = 'card';
 
+  if (l.image_url) {
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.src = l.image_url;
+    img.alt = l.display_title || l.title;
+    img.loading = 'lazy';
+    img.onerror = () => img.replaceWith(placeholderThumb());
+    card.append(img);
+  } else {
+    card.append(placeholderThumb());
+  }
+
+  const body = document.createElement('div');
+  body.className = 'card-body';
+
   const title = document.createElement('h2');
-  title.textContent = l.title;
+  title.textContent = l.display_title || l.title;
+
+  const subtext = document.createElement('p');
+  subtext.className = 'subtext';
+  subtext.textContent = l.display_subtext || '';
 
   const price = document.createElement('p');
   price.className = 'price';
@@ -56,6 +88,10 @@ function listingCard(l) {
   const beds = l.bedrooms ? l.bedrooms + ' bd' : '? bd';
   const baths = l.bathrooms ? l.bathrooms + ' ba' : '? ba';
   meta.textContent = `${beds} / ${baths}` + (l.neighborhood ? ' · ' + l.neighborhood : '');
+
+  const posted = document.createElement('p');
+  posted.className = 'posted';
+  posted.textContent = timeOnCraigslist(l.posted_at) || '';
 
   const badges = document.createElement('div');
   badges.className = 'badges';
@@ -68,15 +104,32 @@ function listingCard(l) {
     }
   });
 
+  body.append(title, subtext, price, meta, posted, badges);
+
+  if (l.parking_cost) {
+    const cost = document.createElement('span');
+    cost.className = 'parking-cost';
+    cost.textContent = '🅿️ ' + l.parking_cost;
+    body.append(cost);
+  }
+
   const link = document.createElement('a');
   link.className = 'view';
   link.href = l.url;
   link.target = '_blank';
   link.rel = 'noreferrer';
   link.textContent = 'View listing →';
+  body.append(link);
 
-  card.append(title, price, meta, badges, link);
+  card.append(body);
   return card;
+}
+
+function placeholderThumb() {
+  const div = document.createElement('div');
+  div.className = 'thumb-placeholder';
+  div.textContent = '🏠';
+  return div;
 }
 </script>
 </body></html>
