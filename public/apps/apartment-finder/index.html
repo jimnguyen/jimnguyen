@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Live feed of SF apartment listings matching a running Craigslist scraper's filters.">
+<title>SF Apartment Finder</title>
+<style>
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9}*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}main{max-width:1060px;margin:auto;padding:44px 24px 60px}header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:32px}.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 8px}h1{font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.06em;line-height:1.05;margin:0}header p{color:var(--muted);font-size:1rem;margin:8px 0 0}.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}.back-link:hover{color:var(--accent-dark)}.status{font-size:.875rem;color:var(--muted);margin:0 0 24px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column}.card h2{font-size:1.05rem;line-height:1.35;margin:0 0 8px}.price{font-size:1.4rem;font-weight:700;color:var(--accent-dark);margin:0 0 4px}.meta{color:var(--muted);font-size:.875rem;margin:0 0 14px}.badges{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 16px}.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--accent-tint);color:var(--accent-dark);padding:4px 9px;border-radius:999px}.card a.view{margin-top:auto;font-weight:600;color:var(--accent-dark);text-decoration:none}.card a.view:hover{text-decoration:underline}.empty,.error{color:var(--muted);padding:40px 0;text-align:center}footer{font-size:.8rem;color:var(--muted);margin-top:36px;max-width:720px}a{color:var(--accent-dark)}@media(max-width:720px){main{padding:26px 16px}}
+</style>
+</head>
+<body><main>
+<a class="back-link" href="https://jimnguyen.dev/">&larr; jimnguyen.dev</a>
+<header>
+<p class="eyebrow">🏠 Playground / Live feed</p>
+<h1>SF Apartment Finder</h1>
+<p>3+ bed, 2+ bath, $6,000 max, laundry + parking + backyard required. Updated every 30 minutes by a Craigslist scraper.</p>
+</header>
+<p class="status" id="status">Loading current matches&hellip;</p>
+<div class="grid" id="grid"></div>
+<footer>Sourced from Craigslist SF only right now (Zillow/Apartments.com block automated access). This is a live personal tool &mdash; the underlying filters may change without notice.</footer>
+</main>
+<script>
+const grid = document.getElementById('grid');
+const status = document.getElementById('status');
+const fmt = new Intl.NumberFormat('en', { maximumFractionDigits: 0 });
+
+fetch('https://jimnguyen.github.io/sf-apartment-hunter/matches.json')
+  .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+  .then(data => {
+    const updated = new Date(data.updated_at);
+    status.textContent = `${data.count} current match${data.count === 1 ? '' : 'es'} · updated ${updated.toLocaleString()}`;
+    if (!data.listings.length) {
+      grid.innerHTML = '<p class="empty">No matching listings right now. Check back soon.</p>';
+      return;
+    }
+    grid.replaceChildren(...data.listings.map(listingCard));
+  })
+  .catch(err => {
+    status.textContent = '';
+    grid.innerHTML = '<p class="error">Couldn\'t load current listings (' + err.message + '). The feed may be temporarily unavailable.</p>';
+  });
+
+function listingCard(l) {
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const title = document.createElement('h2');
+  title.textContent = l.title;
+
+  const price = document.createElement('p');
+  price.className = 'price';
+  price.textContent = l.price ? '$' + fmt.format(l.price) + '/mo' : 'Price n/a';
+
+  const meta = document.createElement('p');
+  meta.className = 'meta';
+  const beds = l.bedrooms ? l.bedrooms + ' bd' : '? bd';
+  const baths = l.bathrooms ? l.bathrooms + ' ba' : '? ba';
+  meta.textContent = `${beds} / ${baths}` + (l.neighborhood ? ' · ' + l.neighborhood : '');
+
+  const badges = document.createElement('div');
+  badges.className = 'badges';
+  [['has_laundry', 'Laundry'], ['has_parking', 'Parking'], ['has_backyard', 'Backyard']].forEach(([key, label]) => {
+    if (l[key]) {
+      const b = document.createElement('span');
+      b.className = 'badge';
+      b.textContent = label;
+      badges.append(b);
+    }
+  });
+
+  const link = document.createElement('a');
+  link.className = 'view';
+  link.href = l.url;
+  link.target = '_blank';
+  link.rel = 'noreferrer';
+  link.textContent = 'View listing →';
+
+  card.append(title, price, meta, badges, link);
+  return card;
+}
+</script>
+</body></html>

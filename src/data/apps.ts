@@ -14,4 +14,11 @@ export const apps: PlaygroundApp[] = [
     emoji: "🍗",
     href: "/apps/chicken/",
   },
+  {
+    slug: "apartment-finder",
+    title: "SF Apartment Finder",
+    description: "Live feed from a Craigslist scraper running on a schedule, filtered to exactly what I'm looking for.",
+    emoji: "🏠",
+    href: "/apps/apartment-finder/",
+  },
 ];
