@@ -24,7 +24,7 @@ const grid = document.getElementById('grid');
 const status = document.getElementById('status');
 const fmt = new Intl.NumberFormat('en', { maximumFractionDigits: 0 });
 
-fetch('https://jimnguyen.github.io/sf-apartment-hunter/matches.json')
+fetch('https://gist.githubusercontent.com/jimnguyen/e0723347b702dc52a89674e20bd320a8/raw/matches.json?_=' + Date.now())
   .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
   .then(data => {
     const updated = new Date(data.updated_at);
