@@ -30,16 +30,10 @@ function MapPinIcon() {
 
 export function ResumeDeck() {
   const [index, setIndex] = useState(0);
-  const [highlightSkill, setHighlightSkill] = useState<string | null>(null);
 
   const goTo = (i: number) => setIndex(Math.max(0, Math.min(cardIds.length - 1, i)));
   const next = () => goTo(index + 1);
   const prev = () => goTo(index - 1);
-
-  const jumpToSkill = (skill: string) => {
-    setHighlightSkill(skill);
-    goTo(cardIds.indexOf("skills"));
-  };
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -103,7 +97,7 @@ export function ResumeDeck() {
               <p className="mt-6 max-w-lg text-text-muted">
                 5+ years specializing in cloud data platforms, distributed systems, and real-time
                 streaming infrastructure, plus a habit of shipping small web projects on the side.
-                Click through &mdash; job locations and tech tags are interactive.
+                Click through &mdash; job locations open on Maps, and tech tags highlight on hover.
               </p>
               <p className="mt-8 text-sm text-text-muted">
                 Use the arrow keys, the dots above, or the button below to move around.
@@ -143,14 +137,12 @@ export function ResumeDeck() {
                     </ul>
                     <div className="mt-5 flex flex-wrap gap-2">
                       {job.skills.map((skill) => (
-                        <button
+                        <span
                           key={skill}
-                          type="button"
-                          onClick={() => jumpToSkill(skill)}
                           className="rounded-full border border-border px-3 py-1 font-label text-[0.65rem] uppercase tracking-wide text-text-muted transition-colors hover:border-accent-500 hover:text-accent-500"
                         >
                           {skill}
-                        </button>
+                        </span>
                       ))}
                     </div>
                   </div>
@@ -193,21 +185,14 @@ export function ResumeDeck() {
                   <div key={group.label}>
                     <h3 className="font-label text-xs uppercase tracking-wider text-text-muted">{group.label}</h3>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {group.skills.map((skill) => {
-                        const isHighlighted = skill.toLowerCase().includes((highlightSkill ?? "").toLowerCase()) && !!highlightSkill;
-                        return (
-                          <span
-                            key={skill}
-                            className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
-                              isHighlighted
-                                ? "border-accent-500 bg-accent-500/10 text-accent-600"
-                                : "border-border"
-                            }`}
-                          >
-                            {skill}
-                          </span>
-                        );
-                      })}
+                      {group.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="rounded-full border border-border px-3 py-1.5 text-sm transition-colors hover:border-accent-500 hover:bg-accent-500/10 hover:text-accent-600"
+                        >
+                          {skill}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 ))}
