@@ -13,11 +13,11 @@ export function About() {
     <div className="grid gap-10 md:grid-cols-[1fr_1.4fr] md:items-start">
       <p className="text-lg text-text-muted">
         I&apos;m a software engineer based in San Francisco, originally from
-        Bellevue, WA, building web apps end to end — from the database up
-        through whatever framework is having a moment. Outside of the editor
-        I&apos;m usually hiking,
-        shooting hoops, planning the next trip, or getting outvoted by my cat
-        Benji on what to watch. 😺
+        Bellevue, WA. By day I build cloud data platforms and streaming
+        infrastructure; on the side I build small web projects, mostly as an
+        excuse to over-engineer things nobody asked for. Outside of the
+        editor I&apos;m usually hiking, shooting hoops, planning the next
+        trip, or getting outvoted by my cat Benji on what to watch. 😺
       </p>
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-3">
         {photos.map((photo, i) => (

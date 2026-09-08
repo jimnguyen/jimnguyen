@@ -25,9 +25,6 @@ export function Hero() {
           Get in touch
         </a>
       </div>
-      <p className="mt-10 max-w-xl rounded-2xl border border-border bg-bg-raised px-5 py-4 text-sm text-text-muted">
-        {site.now}
-      </p>
     </section>
   );
 }

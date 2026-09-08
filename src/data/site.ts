@@ -2,8 +2,7 @@ export const site = {
   name: "Jim Nguyen",
   role: "Software Engineer",
   location: "San Francisco, CA",
-  tagline: "I build things for the web, then find new ways to over-engineer them.",
-  now: "Currently: rebuilding this site with Next.js + Tailwind, and scaling chicken recipes for science.",
+  tagline: "I build cloud data platforms by day, then over-engineer side projects by night.",
   email: "vjimnguyen@gmail.com",
   resumeUrl: "/resume.pdf",
   social: {
