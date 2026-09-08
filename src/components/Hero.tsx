@@ -14,7 +14,7 @@ export function Hero() {
       <div className="mt-8 flex flex-wrap gap-4">
         <a
           href="#projects"
-          className="rounded-full bg-accent-500 px-6 py-3 font-medium text-white transition-colors hover:bg-accent-600"
+          className="rounded-full bg-accent-500 px-6 py-3 font-medium text-[#0f1319] transition-colors hover:bg-accent-600"
         >
           See my work
         </a>

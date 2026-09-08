@@ -15,7 +15,7 @@ export function ResumeSummary() {
         <div className="mt-8 flex flex-col items-start gap-3">
           <Link
             href="/resume/"
-            className="inline-flex items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+            className="inline-flex items-center gap-2 rounded-full bg-accent-500 px-6 py-3 text-sm font-medium text-[#0f1319] transition-colors hover:bg-accent-600"
           >
             Open interactive resume
             <svg viewBox="0 0 16 16" fill="none" strokeWidth="1.6" stroke="currentColor" className="h-3.5 w-3.5">

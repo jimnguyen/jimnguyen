@@ -48,7 +48,7 @@ export function ResumeDeck() {
   const cardId = cardIds[index];
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-10">
       <div className="flex items-center justify-between">
         <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-text-muted hover:text-accent-500">
           <svg viewBox="0 0 16 16" fill="none" strokeWidth="1.8" stroke="currentColor" className="h-3.5 w-3.5">
@@ -268,7 +268,7 @@ export function ResumeDeck() {
         {index === cardIds.length - 1 ? (
           <Link
             href="/"
-            className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+            className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-[#0f1319] transition-colors hover:bg-accent-600"
           >
             Back to site &rarr;
           </Link>
@@ -276,12 +276,12 @@ export function ResumeDeck() {
           <button
             type="button"
             onClick={next}
-            className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+            className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-[#0f1319] transition-colors hover:bg-accent-600"
           >
             Next &rarr;
           </button>
         )}
       </div>
-    </div>
+    </main>
   );
 }
