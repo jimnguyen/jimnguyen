@@ -15,12 +15,12 @@ export function AppCard({ app }: { app: PlaygroundApp }) {
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(min-width: 768px) 33vw, 100vw"
         />
-        <span className="absolute left-3 top-3 text-2xl drop-shadow" aria-hidden>
-          {app.emoji}
-        </span>
       </div>
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="font-display text-lg font-semibold">{app.title}</h3>
+        <h3 className="font-display text-lg font-semibold">
+          <span aria-hidden>{app.emoji} </span>
+          {app.title}
+        </h3>
         <p className="mt-2 text-sm text-text-muted">{app.description}</p>
         <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-accent-500 group-hover:text-accent-600">
           Open
