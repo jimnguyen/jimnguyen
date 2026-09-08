@@ -5,7 +5,7 @@
 <meta name="description" content="Live feed of SF apartment listings matching a running Craigslist scraper's filters.">
 <title>SF Apartment Finder</title>
 <style>
-:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--green:#1a8a4a;--green-tint:#e9f7ef}*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}main{max-width:1060px;margin:auto;padding:44px 24px 60px}header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:32px}.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 8px}h1{font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.06em;line-height:1.05;margin:0}header p{color:var(--muted);font-size:1rem;margin:8px 0 0}.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}.back-link:hover{color:var(--accent-dark)}.status{font-size:.875rem;color:var(--muted);margin:0 0 24px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}.thumb{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--accent-tint);display:block}.thumb-placeholder{width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,var(--accent-tint),#eef1f6);display:flex;align-items:center;justify-content:center;font-size:2rem}.card-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}.card h2{font-size:1.05rem;line-height:1.35;margin:0 0 4px}.subtext{font-size:.8rem;color:var(--muted);margin:0 0 12px;line-height:1.4}.price{font-size:1.4rem;font-weight:700;color:var(--accent-dark);margin:0 0 4px}.meta{color:var(--muted);font-size:.875rem;margin:0 0 6px}.posted{color:var(--muted);font-size:.8rem;margin:0 0 14px}.badges{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--accent-tint);color:var(--accent-dark);padding:4px 9px;border-radius:999px}.parking-cost{font-size:.8rem;font-weight:700;color:var(--green);background:var(--green-tint);display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;margin:0 0 16px;align-self:flex-start}.card a.view{margin-top:auto;font-weight:600;color:var(--accent-dark);text-decoration:none}.card a.view:hover{text-decoration:underline}.empty,.error{color:var(--muted);padding:40px 0;text-align:center}footer{font-size:.8rem;color:var(--muted);margin-top:36px;max-width:720px}a{color:var(--accent-dark)}@media(max-width:720px){main{padding:26px 16px}}
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--green:#1a8a4a;--green-tint:#e9f7ef}*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}main{max-width:1060px;margin:auto;padding:44px 24px 60px}header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:32px}.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 8px}h1{font-size:clamp(2.1rem,5vw,3.2rem);letter-spacing:-.06em;line-height:1.05;margin:0}header p{color:var(--muted);font-size:1rem;margin:8px 0 0}.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}.back-link:hover{color:var(--accent-dark)}.status{font-size:.875rem;color:var(--muted);margin:0 0 24px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}.thumb-link{display:block}.thumb{width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--accent-tint);display:block;transition:opacity .15s}.thumb-link:hover .thumb{opacity:.85}.thumb-placeholder{width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,var(--accent-tint),#eef1f6);display:flex;align-items:center;justify-content:center;font-size:2rem;transition:opacity .15s}.thumb-link:hover .thumb-placeholder{opacity:.85}.card-body{padding:20px 22px 22px;display:flex;flex-direction:column;flex:1}.card h2{font-size:1.05rem;line-height:1.35;margin:0 0 4px}.subtext{font-size:.8rem;color:var(--muted);margin:0 0 12px;line-height:1.4}.price{font-size:1.4rem;font-weight:700;color:var(--accent-dark);margin:0 0 4px}.meta{color:var(--muted);font-size:.875rem;margin:0 0 6px}.posted{color:var(--muted);font-size:.8rem;margin:0 0 14px}.badges{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--accent-tint);color:var(--accent-dark);padding:4px 9px;border-radius:999px}.parking-cost{font-size:.8rem;font-weight:700;color:var(--green);background:var(--green-tint);display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;margin:0 0 16px;align-self:flex-start}.card a.view{margin-top:auto;font-weight:600;color:var(--accent-dark);text-decoration:none}.card a.view:hover{text-decoration:underline}.empty,.error{color:var(--muted);padding:40px 0;text-align:center}footer{font-size:.8rem;color:var(--muted);margin-top:36px;max-width:720px}a{color:var(--accent-dark)}@media(max-width:720px){main{padding:26px 16px}}
 </style>
 </head>
 <body><main>
@@ -57,6 +57,13 @@ function listingCard(l) {
   const card = document.createElement('div');
   card.className = 'card';
 
+  const thumbLink = document.createElement('a');
+  thumbLink.href = l.url;
+  thumbLink.target = '_blank';
+  thumbLink.rel = 'noreferrer';
+  thumbLink.className = 'thumb-link';
+  thumbLink.setAttribute('aria-label', 'View listing: ' + (l.display_title || l.title));
+
   if (l.image_url) {
     const img = document.createElement('img');
     img.className = 'thumb';
@@ -64,10 +71,11 @@ function listingCard(l) {
     img.alt = l.display_title || l.title;
     img.loading = 'lazy';
     img.onerror = () => img.replaceWith(placeholderThumb());
-    card.append(img);
+    thumbLink.append(img);
   } else {
-    card.append(placeholderThumb());
+    thumbLink.append(placeholderThumb());
   }
+  card.append(thumbLink);
 
   const body = document.createElement('div');
   body.className = 'card-body';
