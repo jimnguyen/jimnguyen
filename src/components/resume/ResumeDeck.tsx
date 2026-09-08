@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { site } from "@/data/site";
-import { education, experience, resumeHighlights } from "@/data/resume";
+import { education, experience, impactHighlights, resumeHighlights } from "@/data/resume";
 import { skillGroups } from "@/data/skills";
 
-const cardIds = ["intro", "experience", "education", "skills", "projects", "contact"] as const;
+const cardIds = ["intro", "experience", "impact", "education", "skills", "projects", "contact"] as const;
 type CardId = (typeof cardIds)[number];
 
 const cardLabels: Record<CardId, string> = {
   intro: "Intro",
   experience: "Experience",
+  impact: "Impact",
   education: "Education",
   skills: "Skills",
   projects: "Projects",
@@ -96,11 +97,13 @@ export function ResumeDeck() {
               <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
                 {site.name}
               </h1>
-              <p className="mt-3 text-lg text-text-muted">{site.role} · {site.location}</p>
+              <p className="mt-3 text-lg text-text-muted">
+                {experience[0].title} · {experience[0].company}
+              </p>
               <p className="mt-6 max-w-lg text-text-muted">
-                5+ years building backend systems at PlayStation, plus a habit of shipping small
-                web projects on the side. Click through &mdash; job locations and tech tags are
-                interactive.
+                5+ years specializing in cloud data platforms, distributed systems, and real-time
+                streaming infrastructure, plus a habit of shipping small web projects on the side.
+                Click through &mdash; job locations and tech tags are interactive.
               </p>
               <p className="mt-8 text-sm text-text-muted">
                 Use the arrow keys, the dots above, or the button below to move around.
@@ -156,9 +159,25 @@ export function ResumeDeck() {
             </div>
           )}
 
+          {cardId === "impact" && (
+            <div>
+              <p className="font-label text-xs uppercase tracking-wider text-accent-500">03 / Impact</p>
+              <h2 className="mt-6 font-display text-2xl font-semibold">Highlights</h2>
+              <p className="mt-2 text-sm text-text-muted">The quick-scan version of the work above.</p>
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                {impactHighlights.map((item) => (
+                  <div key={item.title} className="rounded-2xl border border-border p-5">
+                    <p className="font-medium">{item.title}</p>
+                    <p className="mt-1.5 text-sm text-text-muted">{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {cardId === "education" && (
             <div>
-              <p className="font-label text-xs uppercase tracking-wider text-accent-500">03 / Education</p>
+              <p className="font-label text-xs uppercase tracking-wider text-accent-500">04 / Education</p>
               <h2 className="mt-6 font-display text-2xl font-semibold">{education.school}</h2>
               <p className="mt-1 text-text-muted">
                 {education.degree} &middot; {education.graduated}
@@ -168,7 +187,7 @@ export function ResumeDeck() {
 
           {cardId === "skills" && (
             <div>
-              <p className="font-label text-xs uppercase tracking-wider text-accent-500">04 / Skills</p>
+              <p className="font-label text-xs uppercase tracking-wider text-accent-500">05 / Skills</p>
               <div className="mt-6 space-y-6">
                 {skillGroups.map((group) => (
                   <div key={group.label}>
@@ -198,7 +217,7 @@ export function ResumeDeck() {
 
           {cardId === "projects" && (
             <div>
-              <p className="font-label text-xs uppercase tracking-wider text-accent-500">05 / Projects</p>
+              <p className="font-label text-xs uppercase tracking-wider text-accent-500">06 / Projects</p>
               <ul className="mt-6 space-y-5">
                 {resumeHighlights.map((item) => (
                   <li key={item.title} className="border-l-2 border-border pl-4">
@@ -218,7 +237,7 @@ export function ResumeDeck() {
 
           {cardId === "contact" && (
             <div>
-              <p className="font-label text-xs uppercase tracking-wider text-accent-500">06 / Say hi</p>
+              <p className="font-label text-xs uppercase tracking-wider text-accent-500">07 / Say hi</p>
               <h2 className="mt-6 font-display text-2xl font-semibold">Let&apos;s talk</h2>
               <a
                 href={`mailto:${site.email}`}
