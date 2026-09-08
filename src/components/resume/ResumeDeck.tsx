@@ -265,14 +265,22 @@ export function ResumeDeck() {
         <span className="font-label text-xs uppercase tracking-wider text-text-muted">
           {cardLabels[cardId]} &middot; {index + 1} / {cardIds.length}
         </span>
-        <button
-          type="button"
-          onClick={next}
-          disabled={index === cardIds.length - 1}
-          className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600 disabled:pointer-events-none disabled:opacity-0"
-        >
-          Next &rarr;
-        </button>
+        {index === cardIds.length - 1 ? (
+          <Link
+            href="/"
+            className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+          >
+            Back to site &rarr;
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={next}
+            className="rounded-full bg-accent-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-600"
+          >
+            Next &rarr;
+          </button>
+        )}
       </div>
     </div>
   );
