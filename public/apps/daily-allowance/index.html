@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="See what's safe to spend today, with yesterday's leftovers rolled forward. Sample data — the real version stays private.">
+<title>Daily Allowance (Demo)</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Daily Allowance (Demo)">
+<meta property="og:description" content="See what's safe to spend today, with yesterday's leftovers rolled forward. Sample data — the real version stays private.">
+<meta property="og:url" content="https://jimnguyen.dev/apps/daily-allowance/">
+<meta property="og:image" content="https://jimnguyen.dev/apps/daily-allowance/og-preview.png">
+<meta property="og:image:width" content="900">
+<meta property="og:image:height" content="600">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Daily Allowance (Demo)">
+<meta name="twitter:description" content="See what's safe to spend today, with yesterday's leftovers rolled forward. Sample data — the real version stays private.">
+<meta name="twitter:image" content="https://jimnguyen.dev/apps/daily-allowance/og-preview.png">
+<style>
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--green:#1a8a4a;--green-tint:#e9f7ef;--red:#c02f2f;--red-tint:#fdecec}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{max-width:640px;margin:auto;padding:44px 24px 80px}
+header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:20px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 8px}
+h1{font-size:clamp(2rem,5vw,2.6rem);letter-spacing:-.04em;line-height:1.05;margin:0}
+header p{color:var(--muted);font-size:1rem;margin:8px 0 0}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}
+.back-link:hover{color:var(--accent-dark)}
+.demo-banner{display:flex;align-items:center;gap:10px;background:var(--accent-tint);color:var(--accent-dark);border-radius:12px;padding:12px 16px;font-size:.85rem;font-weight:600;margin-bottom:28px}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:26px 28px;margin-bottom:20px}
+h2{font-size:1.1rem;letter-spacing:-.01em;margin:0 0 4px}
+label{display:block;margin:20px 0 8px;font-weight:650;font-size:.9rem}
+label:first-of-type{margin-top:4px}
+input,select{width:100%;min-width:0;font:inherit;background:white;border:1px solid #becbd3;border-radius:8px;color:var(--ink);padding:11px 12px}
+input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hint{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+button{font:inherit;font-weight:700;border:none;border-radius:999px;padding:12px 22px;cursor:pointer}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-block{width:100%;margin-top:24px}
+.big{font-size:clamp(2.6rem,10vw,3.6rem);font-weight:800;letter-spacing:-.04em;line-height:1;margin:2px 0 0}
+.big.negative{color:var(--red)}
+.rollover{font-size:.95rem;color:var(--muted);margin:10px 0 0}
+.rollover strong{color:var(--green)}
+.rollover strong.negative{color:var(--red)}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.stat{background:var(--accent-tint);border-radius:12px;padding:12px 14px}
+.stat .label{font-size:.7rem;text-transform:uppercase;letter-spacing:.03em;color:var(--accent-dark);font-weight:700;margin:0 0 4px}
+.stat .value{font-size:1.2rem;font-weight:700;margin:0}
+.spend-row{display:flex;gap:10px}
+.spend-row input{flex:1}
+.spend-row input.note{flex:2}
+ul.log{list-style:none;margin:16px 0 0;padding:0}
+ul.log li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #edf0f2;font-size:.9rem}
+ul.log li .amt{font-weight:700;font-variant-numeric:tabular-nums}
+ul.log li button{background:none;border:none;color:var(--muted);font-weight:600;font-size:.8rem;cursor:pointer;padding:2px 4px}
+ul.log li button:hover{color:var(--red)}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{text-align:left;padding:9px 4px;border-top:1px solid #edf0f2;font-size:.85rem}
+th{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+td:last-child,th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-size:.85rem}
+.warning{background:var(--red-tint);color:var(--red);border-radius:10px;padding:12px 14px;font-size:.85rem;font-weight:600;margin-top:16px}
+.footer-actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.footer-actions button.link{background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;padding:0;text-decoration:underline}
+.footer-actions button.link:hover{color:var(--accent-dark)}
+footer.page{font-size:.8rem;color:var(--muted);margin-top:36px;max-width:720px}
+footer.page a{color:var(--accent-dark)}
+[hidden]{display:none!important}
+@media(max-width:520px){main{padding:28px 16px}.card{padding:20px 18px}.stat-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body><main>
+<a class="back-link" href="https://jimnguyen.dev/">&larr; jimnguyen.dev</a>
+<header>
+<p class="eyebrow">💸 Playground / Demo</p>
+<h1>Daily Allowance</h1>
+<p>What's actually safe to spend today, carrying yesterday's leftovers forward.</p>
+</header>
+<p class="demo-banner">👀 This is a live demo with made-up numbers — try editing them below. The real version tracks my actual budget and stays private.</p>
+
+<section id="setup" class="card" hidden>
+<h2>Set up a budget</h2>
+<p class="hint">Try your own numbers — everything here just stays in your browser.</p>
+<label for="income">Income per pay period</label>
+<input id="income" type="number" inputmode="decimal" min="0" step="any" placeholder="3000">
+<label for="frequency">How often you're paid</label>
+<select id="frequency">
+<option value="weekly">Weekly</option>
+<option value="biweekly" selected>Every 2 weeks</option>
+<option value="semimonthly">Twice a month</option>
+<option value="monthly">Monthly</option>
+</select>
+<div class="row">
+<div><label for="rent">Rent</label><input id="rent" type="number" inputmode="decimal" min="0" step="any" placeholder="1800"></div>
+<div><label for="cards">Card / debt payments</label><input id="cards" type="number" inputmode="decimal" min="0" step="any" placeholder="300"></div>
+</div>
+<div class="row">
+<div><label for="other">Other recurring bills</label><input id="other" type="number" inputmode="decimal" min="0" step="any" placeholder="100"></div>
+<div><label for="savings">Savings goal</label><input id="savings" type="number" inputmode="decimal" min="0" step="any" placeholder="100"></div>
+</div>
+<p class="hint">Rent/cards/other/savings are all <em>per pay period</em>, same as your income above.</p>
+<div id="setupWarning" class="warning" hidden></div>
+<button type="button" id="saveSettings" class="btn-primary btn-block">Save & recalculate</button>
+</section>
+
+<section id="dashboard" hidden>
+<div class="card">
+<h2>Safe to spend</h2>
+<p class="big" id="bigNumber">$0</p>
+<p class="rollover" id="rolloverLine"></p>
+<div class="stat-grid">
+<div class="stat"><p class="label">Daily baseline</p><p class="value" id="statBaseline">$0</p></div>
+<div class="stat"><p class="label">Per period</p><p class="value" id="statPeriod">$0</p></div>
+<div class="stat"><p class="label">Savings goal</p><p class="value" id="statSavings">$0</p></div>
+</div>
+<div id="dashWarning" class="warning" hidden></div>
+</div>
+
+<div class="card">
+<h2>Log today's spending</h2>
+<div class="spend-row">
+<input id="spendAmount" type="number" inputmode="decimal" min="0" step="any" placeholder="Amount" aria-label="Amount spent">
+<input id="spendNote" class="note" type="text" placeholder="What for? (optional)" aria-label="Note">
+<button type="button" id="addSpend" class="btn-primary">Add</button>
+</div>
+<ul class="log" id="todayLog"></ul>
+</div>
+
+<div class="card">
+<h2>Recent days</h2>
+<table id="historyTable">
+<thead><tr><th>Date</th><th>Rollover in</th><th>Allowance</th><th>Spent</th><th>Balance</th></tr></thead>
+<tbody id="historyBody"></tbody>
+</table>
+</div>
+
+<div class="footer-actions">
+<button type="button" class="link" id="editSettings">Edit numbers</button>
+<button type="button" class="link" id="resetAll">Reset demo</button>
+</div>
+</section>
+
+<footer class="page">This is a sample-data demo of a private tool I built for myself. No accounts, no server &mdash; everything above lives only in your browser's local storage and resets whenever you clear it. <a href="https://daily-allowance.vjimnguyen.workers.dev/">I use the real thing myself &rarr;</a> (login-gated, so it's just a dead end unless you're me).</footer>
+</main>
+<script>
+const KEY = 'dailyAllowanceDemo.v1';
+const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+const DEMO_SETTINGS = {
+  income: 3000, frequency: 'biweekly', rent: 1800, cards: 300, other: 100,
+  fixedExpenses: 2200, savingsGoal: 100,
+};
+const DEMO_YESTERDAY_LEFTOVER = 31;
+const DEMO_YESTERDAY_NOTE = { note: 'Groceries + coffee (demo)', amountFraction: 0.7 };
+
+function periodDaysFor(freq) {
+  return { weekly: 7, biweekly: 14, semimonthly: 15, monthly: 30 }[freq] || 30;
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function saveState(state) {
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+
+function computeBaseline(settings) {
+  const days = periodDaysFor(settings.frequency);
+  const discretionary = settings.income - settings.fixedExpenses - settings.savingsGoal;
+  return { days, discretionary, baseline: discretionary / days };
+}
+
+function todayISO(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function addDaysISO(iso, n) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return todayISO(d);
+}
+
+function daysBetweenISO(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+}
+
+function seedDemoState() {
+  const { baseline } = computeBaseline(DEMO_SETTINGS);
+  const yesterday = addDaysISO(todayISO(), -1);
+  const spentYesterday = Math.max(0, baseline - DEMO_YESTERDAY_LEFTOVER);
+  return {
+    settings: DEMO_SETTINGS,
+    lastAccrualDate: yesterday,
+    balance: DEMO_YESTERDAY_LEFTOVER,
+    history: [{
+      date: yesterday, rolloverIn: 0, allowance: baseline, spent: spentYesterday,
+      notes: spentYesterday > 0 ? [{ amount: spentYesterday, note: DEMO_YESTERDAY_NOTE.note }] : [],
+    }],
+  };
+}
+
+// Bring history up to today, accruing one day's baseline per elapsed day.
+// A day with no logged spending simply keeps its full allowance as rollover.
+function accrue(state) {
+  const { baseline } = computeBaseline(state.settings);
+  const today = todayISO();
+  let missed = daysBetweenISO(state.lastAccrualDate, today);
+  while (missed > 0) {
+    const rolloverIn = state.balance;
+    state.balance = state.balance + baseline;
+    const nextDate = addDaysISO(state.lastAccrualDate, 1);
+    state.history.push({ date: nextDate, rolloverIn, allowance: baseline, spent: 0, notes: [] });
+    state.lastAccrualDate = nextDate;
+    missed--;
+  }
+  return state;
+}
+
+function todayEntry(state) {
+  return state.history[state.history.length - 1];
+}
+
+let state = loadState() || seedDemoState();
+
+const setupEl = document.getElementById('setup');
+const dashEl = document.getElementById('dashboard');
+
+function showSetup() {
+  setupEl.hidden = false;
+  dashEl.hidden = true;
+  document.getElementById('income').value = state.settings.income;
+  document.getElementById('frequency').value = state.settings.frequency;
+  document.getElementById('rent').value = state.settings.rent;
+  document.getElementById('cards').value = state.settings.cards;
+  document.getElementById('other').value = state.settings.other;
+  document.getElementById('savings').value = state.settings.savingsGoal;
+}
+
+function renderDashboard() {
+  setupEl.hidden = true;
+  dashEl.hidden = false;
+
+  state = accrue(state);
+  saveState(state);
+
+  const { days, discretionary, baseline } = computeBaseline(state.settings);
+  const entry = todayEntry(state);
+
+  const bigNumber = document.getElementById('bigNumber');
+  bigNumber.textContent = fmt.format(state.balance);
+  bigNumber.classList.toggle('negative', state.balance < 0);
+
+  const rolloverLine = document.getElementById('rolloverLine');
+  if (entry.rolloverIn > 0.005) {
+    rolloverLine.innerHTML = `<strong>${fmt.format(entry.rolloverIn)}</strong> rolled over from yesterday`;
+  } else if (entry.rolloverIn < -0.005) {
+    rolloverLine.innerHTML = `<strong class="negative">${fmt.format(Math.abs(entry.rolloverIn))} over budget</strong> carried in from yesterday`;
+  } else {
+    rolloverLine.textContent = 'No rollover yet — fresh start.';
+  }
+
+  document.getElementById('statBaseline').textContent = fmt.format(baseline) + '/day';
+  document.getElementById('statPeriod').textContent = fmt.format(discretionary) + ` / ${days}d`;
+  document.getElementById('statSavings').textContent = fmt.format(state.settings.savingsGoal);
+
+  const dashWarning = document.getElementById('dashWarning');
+  if (baseline < 0) {
+    dashWarning.hidden = false;
+    dashWarning.textContent = 'These bills and savings goal add up to more than the income for this period — the daily baseline is negative.';
+  } else {
+    dashWarning.hidden = true;
+  }
+
+  const todayLog = document.getElementById('todayLog');
+  todayLog.replaceChildren();
+  if (!entry.notes.length) {
+    const li = document.createElement('li');
+    li.innerHTML = '<span class="empty">Nothing logged today yet.</span>';
+    todayLog.append(li);
+  } else {
+    entry.notes.forEach((n, i) => {
+      const li = document.createElement('li');
+      const label = document.createElement('span');
+      label.textContent = n.note || 'Spent';
+      const right = document.createElement('span');
+      right.style.display = 'flex';
+      right.style.alignItems = 'center';
+      right.style.gap = '10px';
+      const amt = document.createElement('span');
+      amt.className = 'amt';
+      amt.textContent = fmt.format(n.amount);
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = 'Remove';
+      remove.addEventListener('click', () => removeSpend(i));
+      right.append(amt, remove);
+      li.append(label, right);
+      todayLog.append(li);
+    });
+  }
+
+  const historyBody = document.getElementById('historyBody');
+  historyBody.replaceChildren();
+  const recent = state.history.slice(-10).reverse();
+  recent.forEach((h) => {
+    const endingBalance = h.rolloverIn + h.allowance - h.spent;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${h.date}</td><td>${fmt.format(h.rolloverIn)}</td><td>${fmt.format(h.allowance)}</td><td>${fmt.format(h.spent)}</td><td>${fmt.format(endingBalance)}</td>`;
+    historyBody.append(tr);
+  });
+}
+
+function removeSpend(index) {
+  const entry = todayEntry(state);
+  const [removed] = entry.notes.splice(index, 1);
+  entry.spent -= removed.amount;
+  state.balance += removed.amount;
+  saveState(state);
+  renderDashboard();
+}
+
+document.getElementById('saveSettings').addEventListener('click', () => {
+  const income = Number(document.getElementById('income').value) || 0;
+  const frequency = document.getElementById('frequency').value;
+  const rent = Number(document.getElementById('rent').value) || 0;
+  const cards = Number(document.getElementById('cards').value) || 0;
+  const other = Number(document.getElementById('other').value) || 0;
+  const savingsGoal = Number(document.getElementById('savings').value) || 0;
+  const fixedExpenses = rent + cards + other;
+
+  if (income <= 0) {
+    const w = document.getElementById('setupWarning');
+    w.hidden = false;
+    w.textContent = 'Enter an income greater than zero.';
+    return;
+  }
+
+  const settings = { income, frequency, rent, cards, other, fixedExpenses, savingsGoal };
+  const today = todayISO();
+  const editingToday = state.lastAccrualDate === today;
+  const oldAllowance = editingToday ? todayEntry(state).allowance : 0;
+
+  state.settings = settings;
+  if (editingToday) {
+    // Today's baseline already accrued under the old settings — re-price it
+    // to the new baseline instead of leaving today's number stale.
+    const { baseline } = computeBaseline(settings);
+    const entry = todayEntry(state);
+    entry.allowance = baseline;
+    state.balance += baseline - oldAllowance;
+  }
+  saveState(state);
+  renderDashboard();
+});
+
+document.getElementById('addSpend').addEventListener('click', () => {
+  const amountInput = document.getElementById('spendAmount');
+  const noteInput = document.getElementById('spendNote');
+  const amount = Number(amountInput.value);
+  if (!Number.isFinite(amount) || amount <= 0) return;
+  const entry = todayEntry(state);
+  entry.spent += amount;
+  entry.notes.push({ amount, note: noteInput.value.trim() });
+  state.balance -= amount;
+  saveState(state);
+  amountInput.value = '';
+  noteInput.value = '';
+  renderDashboard();
+});
+
+document.getElementById('spendNote').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('addSpend').click();
+});
+document.getElementById('spendAmount').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('addSpend').click();
+});
+
+document.getElementById('editSettings').addEventListener('click', showSetup);
+
+document.getElementById('resetAll').addEventListener('click', () => {
+  localStorage.removeItem(KEY);
+  state = seedDemoState();
+  renderDashboard();
+});
+
+renderDashboard();
+</script>
+</body></html>
