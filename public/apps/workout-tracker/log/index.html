@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Log a workout</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--red:#c02f2f;--red-tint:#fdecec}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{max-width:560px;margin:auto;padding:44px 24px 80px}
+header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:28px}
+h1{font-size:clamp(1.7rem,5vw,2.2rem);letter-spacing:-.04em;margin:0}
+header p{color:var(--muted);font-size:.95rem;margin:8px 0 0}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}
+.back-link:hover{color:var(--accent-dark)}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:20px}
+h2{font-size:1.05rem;margin:0 0 14px}
+label{display:block;margin:16px 0 6px;font-weight:650;font-size:.88rem}
+label:first-of-type{margin-top:0}
+input,select{width:100%;min-width:0;font:inherit;background:white;border:1px solid #becbd3;border-radius:8px;color:var(--ink);padding:10px 12px}
+input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-top:14px}
+.checkbox-row input{width:auto}
+.checkbox-row label{margin:0;font-weight:600;font-size:.88rem}
+button{font:inherit;font-weight:700;border:none;border-radius:999px;padding:11px 20px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-block{width:100%;margin-top:18px}
+.btn-link{background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;text-decoration:underline;padding:0;cursor:pointer}
+.btn-link:hover{color:var(--accent-dark)}
+.warning{background:var(--red-tint);color:var(--red);border-radius:10px;padding:11px 14px;font-size:.85rem;font-weight:600;margin-top:14px}
+.who{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:.85rem;color:var(--muted)}
+ul.recent{list-style:none;margin:0;padding:0}
+ul.recent li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #edf0f2;font-size:.85rem}
+ul.recent li:first-child{border-top:none}
+ul.recent li button{background:none;border:none;color:var(--muted);font-weight:600;font-size:.78rem;cursor:pointer}
+ul.recent li button:hover{color:var(--red)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body><main>
+<a class="back-link" href="../">&larr; Workout Tracker</a>
+<header>
+<h1>Log a workout</h1>
+<p>Sign in to add entries. The calendar page reads whatever's saved here.</p>
+</header>
+
+<section id="loginSection" class="card">
+<h2>Sign in</h2>
+<label for="email">Email</label>
+<input id="email" type="email" autocomplete="username">
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password">
+<div id="loginWarning" class="warning" hidden></div>
+<button type="button" id="loginBtn" class="btn-primary btn-block">Sign in</button>
+</section>
+
+<section id="appSection" hidden>
+<div class="who">
+<span id="whoami"></span>
+<button type="button" id="logoutBtn" class="btn-link">Sign out</button>
+</div>
+
+<div class="card">
+<h2>Add a workout</h2>
+<label for="wDate">Date</label>
+<input id="wDate" type="date">
+<div class="row">
+<div><label for="wType">Type</label>
+<select id="wType">
+<option value="strength">Strength</option>
+<option value="cardio">Cardio</option>
+<option value="other">Other</option>
+</select></div>
+<div><label for="wTitle">Title</label>
+<input id="wTitle" type="text" placeholder="Chest/Tri/Shoulders"></div>
+</div>
+<label for="wDetail">Detail (optional)</label>
+<input id="wDetail" type="text" placeholder="12% incline, 30 min, 3 mph">
+<div class="checkbox-row">
+<input id="wCompleted" type="checkbox" checked>
+<label for="wCompleted">Already done (uncheck if just planned)</label>
+</div>
+<div id="workoutWarning" class="warning" hidden></div>
+<button type="button" id="addWorkoutBtn" class="btn-primary btn-block">Add workout</button>
+</div>
+
+<div class="card">
+<h2>Recent workouts</h2>
+<ul class="recent" id="recentWorkouts"></ul>
+</div>
+
+<div class="card">
+<h2>Log today's weight</h2>
+<label for="wgtDate">Date</label>
+<input id="wgtDate" type="date">
+<label for="wgtValue">Weight (lbs)</label>
+<input id="wgtValue" type="number" inputmode="decimal" step="0.1" min="0" placeholder="172.4">
+<div id="weightWarning" class="warning" hidden></div>
+<button type="button" id="addWeightBtn" class="btn-primary btn-block">Save weight</button>
+</div>
+
+<div class="card">
+<h2>Recent weigh-ins</h2>
+<ul class="recent" id="recentWeights"></ul>
+</div>
+
+<div class="card">
+<h2>Goal</h2>
+<div class="row">
+<div><label for="goalStart">Starting weight</label><input id="goalStart" type="number" inputmode="decimal" step="0.1" min="0"></div>
+<div><label for="goalTarget">Target weight</label><input id="goalTarget" type="number" inputmode="decimal" step="0.1" min="0"></div>
+</div>
+<label for="goalDate">Target date</label>
+<input id="goalDate" type="date">
+<div id="goalWarning" class="warning" hidden></div>
+<button type="button" id="saveGoalBtn" class="btn-primary btn-block">Save goal</button>
+</div>
+</section>
+</main>
+<script>
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const configured = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY');
+const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const fmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+const els = {
+  login: document.getElementById('loginSection'),
+  app: document.getElementById('appSection'),
+};
+
+function showError(id, message) {
+  const el = document.getElementById(id);
+  el.hidden = false;
+  el.textContent = message;
+}
+function clearError(id) {
+  document.getElementById(id).hidden = true;
+}
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  clearError('loginWarning');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    showError('loginWarning', error.message);
+    return;
+  }
+  await enterApp();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  els.app.hidden = true;
+  els.login.hidden = false;
+});
+
+async function enterApp() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  document.getElementById('whoami').textContent = 'Signed in as ' + user.email;
+  els.login.hidden = true;
+  els.app.hidden = false;
+  document.getElementById('wDate').value = todayISO();
+  document.getElementById('wgtDate').value = todayISO();
+  await Promise.all([loadRecentWorkouts(), loadRecentWeights(), loadGoal()]);
+}
+
+async function loadRecentWorkouts() {
+  const { data } = await sb.from('workouts').select('*').order('date', { ascending: false }).order('created_at', { ascending: false }).limit(10);
+  const list = document.getElementById('recentWorkouts');
+  list.replaceChildren();
+  (data || []).forEach((w) => {
+    const li = document.createElement('li');
+    const label = document.createElement('span');
+    label.textContent = `${fmt.format(new Date(w.date + 'T00:00:00'))} — ${w.title}${w.completed ? '' : ' (planned)'}`;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = 'Delete';
+    del.addEventListener('click', async () => {
+      await sb.from('workouts').delete().eq('id', w.id);
+      loadRecentWorkouts();
+    });
+    li.append(label, del);
+    list.append(li);
+  });
+}
+
+async function loadRecentWeights() {
+  const { data } = await sb.from('weight_entries').select('*').order('date', { ascending: false }).limit(10);
+  const list = document.getElementById('recentWeights');
+  list.replaceChildren();
+  (data || []).forEach((w) => {
+    const li = document.createElement('li');
+    const label = document.createElement('span');
+    label.textContent = `${fmt.format(new Date(w.date + 'T00:00:00'))} — ${Number(w.weight).toFixed(1)} lbs`;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = 'Delete';
+    del.addEventListener('click', async () => {
+      await sb.from('weight_entries').delete().eq('id', w.id);
+      loadRecentWeights();
+    });
+    li.append(label, del);
+    list.append(li);
+  });
+}
+
+async function loadGoal() {
+  const { data } = await sb.from('goal').select('*').eq('id', 'default').maybeSingle();
+  if (!data) return;
+  document.getElementById('goalStart').value = data.start_weight;
+  document.getElementById('goalTarget').value = data.target_weight;
+  document.getElementById('goalDate').value = data.target_date;
+}
+
+document.getElementById('addWorkoutBtn').addEventListener('click', async () => {
+  clearError('workoutWarning');
+  const date = document.getElementById('wDate').value;
+  const type = document.getElementById('wType').value;
+  const title = document.getElementById('wTitle').value.trim();
+  const detail = document.getElementById('wDetail').value.trim();
+  const completed = document.getElementById('wCompleted').checked;
+  if (!date || !title) {
+    showError('workoutWarning', 'Date and title are required.');
+    return;
+  }
+  const { error } = await sb.from('workouts').insert({ date, type, title, detail, completed });
+  if (error) {
+    showError('workoutWarning', error.message);
+    return;
+  }
+  document.getElementById('wTitle').value = '';
+  document.getElementById('wDetail').value = '';
+  await loadRecentWorkouts();
+});
+
+document.getElementById('addWeightBtn').addEventListener('click', async () => {
+  clearError('weightWarning');
+  const date = document.getElementById('wgtDate').value;
+  const weight = Number(document.getElementById('wgtValue').value);
+  if (!date || !Number.isFinite(weight) || weight <= 0) {
+    showError('weightWarning', 'Enter a date and a weight greater than zero.');
+    return;
+  }
+  const { error } = await sb.from('weight_entries').upsert({ date, weight }, { onConflict: 'date' });
+  if (error) {
+    showError('weightWarning', error.message);
+    return;
+  }
+  document.getElementById('wgtValue').value = '';
+  await loadRecentWeights();
+});
+
+document.getElementById('saveGoalBtn').addEventListener('click', async () => {
+  clearError('goalWarning');
+  const start_weight = Number(document.getElementById('goalStart').value);
+  const target_weight = Number(document.getElementById('goalTarget').value);
+  const target_date = document.getElementById('goalDate').value;
+  if (!Number.isFinite(start_weight) || !Number.isFinite(target_weight) || !target_date) {
+    showError('goalWarning', 'Fill in starting weight, target weight, and target date.');
+    return;
+  }
+  const { error } = await sb.from('goal').upsert({ id: 'default', start_weight, target_weight, target_date });
+  if (error) showError('goalWarning', error.message);
+});
+
+async function init() {
+  if (!configured) {
+    document.querySelector('main').insertAdjacentHTML('afterbegin', '<div class="warning">Supabase not configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in this file.</div>');
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) await enterApp();
+}
+init();
+</script>
+</body></html>

@@ -3,6 +3,7 @@ import type { PlaygroundApp } from "@/types/app";
 import chickenPreview from "@/assets/chicken-preview.webp";
 import apartmentFinderPreview from "@/assets/apartment-finder-preview.webp";
 import dailyAllowancePreview from "@/assets/daily-allowance-preview.webp";
+import workoutTrackerPreview from "@/assets/workout-tracker-preview.webp";
 
 // Each app is a self-contained static page under public/apps/<slug>/index.html
 // (no build step — plain HTML/CSS/JS). To add a new one:
@@ -35,5 +36,13 @@ export const apps: PlaygroundApp[] = [
     emoji: "💸",
     image: dailyAllowancePreview,
     href: "/apps/daily-allowance/",
+  },
+  {
+    slug: "workout-tracker",
+    title: "Workout Tracker",
+    description: "Live calendar of what I'm training and how the weight goal is going — updated as I log it.",
+    emoji: "🏋️",
+    image: workoutTrackerPreview,
+    href: "/apps/workout-tracker/",
   },
 ];

@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Live calendar of my planned and completed workouts, plus progress toward my current weight goal.">
+<title>Workout Tracker</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="Workout Tracker">
+<meta property="og:description" content="Live calendar of my planned and completed workouts, plus progress toward my current weight goal.">
+<meta property="og:url" content="https://jimnguyen.dev/apps/workout-tracker/">
+<meta property="og:image" content="https://jimnguyen.dev/apps/workout-tracker/og-preview.png">
+<meta property="og:image:width" content="900">
+<meta property="og:image:height" content="600">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Workout Tracker">
+<meta name="twitter:description" content="Live calendar of my planned and completed workouts, plus progress toward my current weight goal.">
+<meta name="twitter:image" content="https://jimnguyen.dev/apps/workout-tracker/og-preview.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--green:#1a8a4a;--green-tint:#e9f7ef;--red:#c02f2f}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{max-width:760px;margin:auto;padding:44px 24px 80px}
+header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:28px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent-dark);margin:0 0 8px}
+h1{font-size:clamp(2rem,5vw,2.6rem);letter-spacing:-.04em;line-height:1.05;margin:0}
+header p{color:var(--muted);font-size:1rem;margin:8px 0 0}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}
+.back-link:hover{color:var(--accent-dark)}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:20px}
+h2{font-size:1.05rem;letter-spacing:-.01em;margin:0 0 14px}
+.status{font-size:.85rem;color:var(--muted)}
+
+.goal-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;margin-bottom:14px}
+.goal-current{font-size:2.2rem;font-weight:800;letter-spacing:-.03em}
+.goal-target{color:var(--muted);font-size:.95rem}
+.progress-track{height:10px;border-radius:999px;background:var(--accent-tint);overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .3s ease}
+.goal-meta{display:flex;justify-content:space-between;margin-top:8px;font-size:.8rem;color:var(--muted)}
+
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cal-nav button{font:inherit;border:1px solid var(--line);background:white;border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--ink)}
+.cal-nav button:hover{border-color:var(--accent);color:var(--accent-dark)}
+.cal-month{font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-dow{font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--muted);text-align:center;padding-bottom:4px}
+.cal-day{position:relative;min-height:58px;border-radius:10px;border:1px solid var(--line);padding:5px 5px 4px;cursor:pointer;background:white}
+.cal-day.empty{border-color:transparent;cursor:default}
+.cal-day.today{border-color:var(--accent);border-width:2px}
+.cal-day.selected{background:var(--accent-tint)}
+.cal-day:hover:not(.empty){border-color:var(--accent)}
+.cal-day .num{font-size:.75rem;font-weight:700;color:var(--muted)}
+.cal-day.today .num{color:var(--accent-dark)}
+.cal-badges{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
+.cal-badge{font-size:.85rem;line-height:1}
+.cal-badge.planned{opacity:.45}
+
+.day-detail{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.day-detail h3{font-size:.9rem;margin:0 0 8px}
+.entry{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid #edf0f2}
+.entry:first-child{border-top:none}
+.entry .emoji{font-size:1.1rem}
+.entry .title{font-weight:600;font-size:.9rem}
+.entry .detail{color:var(--muted);font-size:.82rem;margin-top:1px}
+.entry .planned-tag{font-size:.7rem;font-weight:700;color:var(--accent-dark);background:var(--accent-tint);padding:2px 7px;border-radius:999px;margin-left:6px}
+.empty-day{color:var(--muted);font-size:.85rem}
+
+footer.page{font-size:.8rem;color:var(--muted);margin-top:32px;max-width:720px}
+footer.page a{color:var(--accent-dark)}
+@media(max-width:520px){main{padding:28px 16px}.card{padding:18px 16px}}
+</style>
+</head>
+<body><main>
+<a class="back-link" href="https://jimnguyen.dev/">&larr; jimnguyen.dev</a>
+<header>
+<p class="eyebrow">🏋️ Playground / Live</p>
+<h1>Workout Tracker</h1>
+<p>What I'm training and how the weight goal is going &mdash; updated as I log it.</p>
+</header>
+
+<div class="card">
+<h2>Weight goal</h2>
+<p class="status" id="goalStatus">Loading&hellip;</p>
+<div id="goalBody" hidden>
+<div class="goal-row">
+<span class="goal-current" id="goalCurrent">&mdash;</span>
+<span class="goal-target" id="goalTarget"></span>
+</div>
+<div class="progress-track"><div class="progress-fill" id="goalProgressFill" style="width:0%"></div></div>
+<div class="goal-meta"><span id="goalToGo"></span><span id="goalDaysLeft"></span></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Calendar</h2>
+<div class="cal-nav">
+<button type="button" id="prevMonth" aria-label="Previous month">&larr;</button>
+<span class="cal-month" id="calMonthLabel"></span>
+<button type="button" id="nextMonth" aria-label="Next month">&rarr;</button>
+</div>
+<div class="cal-grid" id="calGrid"></div>
+<div class="day-detail">
+<h3 id="dayDetailLabel"></h3>
+<div id="dayDetailBody"></div>
+</div>
+</div>
+
+<footer class="page">Live data from my own log &mdash; 💪 strength, 🏃 cardio, ⚡ other. Faded badges are planned but not yet done. <a href="./log/">I log entries here.</a></footer>
+</main>
+<script>
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+
+const configured = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY');
+const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const TYPE_EMOJI = { strength: '💪', cardio: '🏃', other: '⚡' };
+const fmtWeight = (n) => `${Number(n).toFixed(1)} lbs`;
+
+function todayISO(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function daysBetweenISO(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+}
+
+let workoutsByDate = {};
+let viewYear, viewMonth; // viewMonth is 0-indexed
+let selectedDate = todayISO();
+
+async function loadGoalAndProgress() {
+  const goalStatus = document.getElementById('goalStatus');
+  const [{ data: goal, error: gErr }, { data: latestWeight, error: wErr }] = await Promise.all([
+    sb.from('goal').select('*').eq('id', 'default').maybeSingle(),
+    sb.from('weight_entries').select('*').order('date', { ascending: false }).limit(1).maybeSingle(),
+  ]);
+  if (gErr || wErr) {
+    goalStatus.textContent = "Couldn't load goal data.";
+    return;
+  }
+  if (!goal || !latestWeight) {
+    goalStatus.textContent = 'No goal set yet.';
+    return;
+  }
+  goalStatus.hidden = true;
+  document.getElementById('goalBody').hidden = false;
+
+  const current = Number(latestWeight.weight);
+  const start = Number(goal.start_weight);
+  const target = Number(goal.target_weight);
+  const totalChange = target - start;
+  const currentChange = current - start;
+  const progress = totalChange !== 0 ? Math.min(1, Math.max(0, currentChange / totalChange)) : 0;
+
+  document.getElementById('goalCurrent').textContent = fmtWeight(current);
+  document.getElementById('goalTarget').textContent = `goal: ${fmtWeight(target)} by ${goal.target_date}`;
+  document.getElementById('goalProgressFill').style.width = (progress * 100).toFixed(1) + '%';
+
+  const toGo = current - target;
+  document.getElementById('goalToGo').textContent =
+    Math.abs(toGo) < 0.05 ? 'Goal reached!' : toGo > 0 ? `${toGo.toFixed(1)} lbs to go` : `${Math.abs(toGo).toFixed(1)} lbs past goal`;
+
+  const daysLeft = daysBetweenISO(todayISO(), goal.target_date);
+  document.getElementById('goalDaysLeft').textContent =
+    daysLeft > 0 ? `${daysLeft} day${daysLeft === 1 ? '' : 's'} left` : daysLeft === 0 ? 'Goal date is today' : `${Math.abs(daysLeft)} days past goal date`;
+}
+
+async function loadWorkouts() {
+  const { data, error } = await sb.from('workouts').select('*').order('date', { ascending: true });
+  if (error) return;
+  workoutsByDate = {};
+  (data || []).forEach((w) => {
+    (workoutsByDate[w.date] ||= []).push(w);
+  });
+}
+
+function renderCalendar() {
+  const label = new Date(viewYear, viewMonth, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  document.getElementById('calMonthLabel').textContent = label;
+
+  const grid = document.getElementById('calGrid');
+  grid.replaceChildren();
+  ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach((d) => {
+    const el = document.createElement('div');
+    el.className = 'cal-dow';
+    el.textContent = d;
+    grid.append(el);
+  });
+
+  const firstDow = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const today = todayISO();
+
+  for (let i = 0; i < firstDow; i++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day empty';
+    grid.append(el);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateISO = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    if (dateISO === today) cell.classList.add('today');
+    if (dateISO === selectedDate) cell.classList.add('selected');
+
+    const num = document.createElement('div');
+    num.className = 'num';
+    num.textContent = day;
+    cell.append(num);
+
+    const entries = workoutsByDate[dateISO];
+    if (entries?.length) {
+      const badges = document.createElement('div');
+      badges.className = 'cal-badges';
+      entries.slice(0, 4).forEach((w) => {
+        const b = document.createElement('span');
+        b.className = 'cal-badge' + (w.completed ? '' : ' planned');
+        b.textContent = TYPE_EMOJI[w.type] || '⚡';
+        badges.append(b);
+      });
+      cell.append(badges);
+    }
+
+    cell.addEventListener('click', () => {
+      selectedDate = dateISO;
+      renderCalendar();
+      renderDayDetail();
+    });
+    grid.append(cell);
+  }
+}
+
+function renderDayDetail() {
+  const label = document.getElementById('dayDetailLabel');
+  const body = document.getElementById('dayDetailBody');
+  const d = new Date(selectedDate + 'T00:00:00');
+  label.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (selectedDate === todayISO() ? ' (today)' : '');
+
+  body.replaceChildren();
+  const entries = workoutsByDate[selectedDate];
+  if (!entries?.length) {
+    const p = document.createElement('p');
+    p.className = 'empty-day';
+    p.textContent = 'Nothing logged for this day.';
+    body.append(p);
+    return;
+  }
+  entries.forEach((w) => {
+    const row = document.createElement('div');
+    row.className = 'entry';
+    const emoji = document.createElement('span');
+    emoji.className = 'emoji';
+    emoji.textContent = TYPE_EMOJI[w.type] || '⚡';
+    const text = document.createElement('div');
+    const title = document.createElement('div');
+    title.className = 'title';
+    title.textContent = w.title;
+    if (!w.completed) {
+      const tag = document.createElement('span');
+      tag.className = 'planned-tag';
+      tag.textContent = 'Planned';
+      title.append(tag);
+    }
+    text.append(title);
+    if (w.detail) {
+      const detail = document.createElement('div');
+      detail.className = 'detail';
+      detail.textContent = w.detail;
+      text.append(detail);
+    }
+    row.append(emoji, text);
+    body.append(row);
+  });
+}
+
+document.getElementById('prevMonth').addEventListener('click', () => {
+  viewMonth--;
+  if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+  renderCalendar();
+});
+document.getElementById('nextMonth').addEventListener('click', () => {
+  viewMonth++;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  renderCalendar();
+});
+
+async function init() {
+  if (!configured) {
+    document.getElementById('goalStatus').textContent = 'Supabase not configured yet.';
+    const now = new Date();
+    viewYear = now.getFullYear();
+    viewMonth = now.getMonth();
+    renderCalendar();
+    renderDayDetail();
+    return;
+  }
+  const now = new Date();
+  viewYear = now.getFullYear();
+  viewMonth = now.getMonth();
+  await Promise.all([loadGoalAndProgress(), loadWorkouts()]);
+  renderCalendar();
+  renderDayDetail();
+}
+
+init();
+</script>
+</body></html>
