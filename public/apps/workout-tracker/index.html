@@ -108,8 +108,8 @@ footer.page a{color:var(--accent-dark)}
 <footer class="page">Live data from my own log &mdash; 💪 strength, 🏃 cardio, ⚡ other. Faded badges are planned but not yet done. <a href="./log/">I log entries here.</a></footer>
 </main>
 <script>
-const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const SUPABASE_URL = 'https://qryyufmmdwybbjtugbhk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyeXl1Zm1tZHd5YmJqdHVnYmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5MjgwNDUsImV4cCI6MjEwNDUwNDA0NX0.PgYvgGCrXWIYRFa09gAE41w3-QCLs7Gcdwt5oxAwo_I';
 
 const configured = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY');
 const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
