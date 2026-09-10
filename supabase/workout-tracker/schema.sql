@@ -8,6 +8,8 @@ create table if not exists workouts (
   title text not null,
   detail text not null default '',
   completed boolean not null default true,
+  -- [{name: "Flat Bench", sets: [{weight: "135", reps: 8}, ...]}, ...]
+  exercises jsonb not null default '[]'::jsonb,
   created_at timestamptz not null default now()
 );
 create index if not exists workouts_date_idx on workouts (date);

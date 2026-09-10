@@ -287,6 +287,14 @@ function renderDayDetail() {
       detail.textContent = w.detail;
       text.append(detail);
     }
+    (w.exercises || []).forEach((ex) => {
+      if (!ex.name) return;
+      const exRow = document.createElement('div');
+      exRow.className = 'detail';
+      const sets = (ex.sets || []).map((s) => s.reps != null ? `${s.weight}x${s.reps}` : s.weight).join(', ');
+      exRow.textContent = sets ? `${ex.name}: ${sets}` : ex.name;
+      text.append(exRow);
+    });
     row.append(emoji, text);
     body.append(row);
   });
