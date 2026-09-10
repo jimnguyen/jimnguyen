@@ -17,6 +17,7 @@ header p{color:var(--muted);font-size:.95rem;margin:8px 0 0}
 .back-link:hover{color:var(--accent-dark)}
 .card{background:white;border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:20px}
 h2{font-size:1.05rem;margin:0 0 14px}
+.hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
 label{display:block;margin:16px 0 6px;font-weight:650;font-size:.88rem}
 label:first-of-type{margin-top:0}
 input,select{width:100%;min-width:0;font:inherit;background:white;border:1px solid #becbd3;border-radius:8px;color:var(--ink);padding:10px 12px}
@@ -63,6 +64,13 @@ ul.recent li button:hover{color:var(--red)}
 <div class="who">
 <span id="whoami"></span>
 <button type="button" id="logoutBtn" class="btn-link">Sign out</button>
+</div>
+
+<div class="card">
+<h2>Load a plan</h2>
+<p class="hint" id="planDescription"></p>
+<div id="planWarning" class="warning" hidden></div>
+<button type="button" id="loadPlanBtn" class="btn-primary btn-block">Load 21-day cut plan (Sep 10 – Sep 30)</button>
 </div>
 
 <div class="card">
@@ -134,6 +142,41 @@ function todayISO() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
+// 21-day cut plan, Sep 10 – Sep 30: 4x/week lifting (Push/Pull, no legs),
+// incline walk nearly every day, no full rest days. Golf substitutes for
+// incline walk on flexible days. Final 4 days note the sodium/carb taper.
+const WALK = '12% incline, 30 min, 3 mph';
+const WALK_TAPER = '12% incline, 30 min, 3 mph — taper: lower sodium/carbs, keep water normal';
+const PUSH = { type: 'strength', title: 'Chest/Tri/Shoulders', detail: '' };
+const PULL = { type: 'strength', title: 'Back/Bi', detail: '' };
+function cardio(detail) { return { type: 'cardio', title: 'Incline walk', detail }; }
+function cardioFlex(detail) { return { type: 'cardio', title: 'Incline walk (or golf)', detail }; }
+
+const PLAN = [
+  ['2026-09-10', [PUSH, cardio(WALK)]],
+  ['2026-09-11', [PULL, cardio(WALK)]],
+  ['2026-09-12', [cardioFlex(WALK)]],
+  ['2026-09-13', [PUSH, cardio(WALK)]],
+  ['2026-09-14', [PULL, cardio(WALK)]],
+  ['2026-09-15', [cardioFlex(WALK)]],
+  ['2026-09-16', [cardio(WALK)]],
+  ['2026-09-17', [PUSH, cardio(WALK)]],
+  ['2026-09-18', [PULL, cardio(WALK)]],
+  ['2026-09-19', [cardioFlex(WALK)]],
+  ['2026-09-20', [PUSH, cardio(WALK)]],
+  ['2026-09-21', [PULL, cardio(WALK)]],
+  ['2026-09-22', [cardioFlex(WALK)]],
+  ['2026-09-23', [cardio(WALK)]],
+  ['2026-09-24', [PUSH, cardio(WALK)]],
+  ['2026-09-25', [PULL, cardio(WALK)]],
+  ['2026-09-26', [cardioFlex(WALK)]],
+  ['2026-09-27', [PUSH, cardio(WALK_TAPER)]],
+  ['2026-09-28', [PULL, cardio(WALK_TAPER)]],
+  ['2026-09-29', [cardioFlex(WALK_TAPER)]],
+  ['2026-09-30', [cardio(WALK_TAPER)]],
+];
+const PLAN_TOTAL = PLAN.reduce((n, [, entries]) => n + entries.length, 0);
+
 const els = {
   login: document.getElementById('loginSection'),
   app: document.getElementById('appSection'),
@@ -166,12 +209,49 @@ document.getElementById('logoutBtn').addEventListener('click', async () => {
   els.login.hidden = false;
 });
 
+document.getElementById('loadPlanBtn').addEventListener('click', async () => {
+  clearError('planWarning');
+  const btn = document.getElementById('loadPlanBtn');
+  btn.disabled = true;
+  try {
+    const from = PLAN[0][0];
+    const to = PLAN[PLAN.length - 1][0];
+    const { data: existing, error: fetchErr } = await sb.from('workouts').select('date,title').gte('date', from).lte('date', to);
+    if (fetchErr) throw fetchErr;
+    const existingKeys = new Set((existing || []).map((w) => w.date + '|' + w.title));
+
+    const rows = [];
+    for (const [date, entries] of PLAN) {
+      for (const entry of entries) {
+        if (existingKeys.has(date + '|' + entry.title)) continue;
+        rows.push({ date, type: entry.type, title: entry.title, detail: entry.detail, completed: false });
+      }
+    }
+    if (rows.length === 0) {
+      showError('planWarning', 'Already loaded — every planned entry for Sep 10–30 already exists.');
+      return;
+    }
+    const { error: insertErr } = await sb.from('workouts').insert(rows);
+    if (insertErr) throw insertErr;
+    const skipped = PLAN_TOTAL - rows.length;
+    document.getElementById('planDescription').textContent =
+      `Loaded ${rows.length} planned entr${rows.length === 1 ? 'y' : 'ies'}${skipped ? ` (${skipped} already existed, skipped)` : ''}. Safe to click again later — it won't duplicate.`;
+    await loadRecentWorkouts();
+  } catch (err) {
+    showError('planWarning', err.message || String(err));
+  } finally {
+    btn.disabled = false;
+  }
+});
+
 async function enterApp() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) return;
   document.getElementById('whoami').textContent = 'Signed in as ' + user.email;
   els.login.hidden = true;
   els.app.hidden = false;
+  document.getElementById('planDescription').textContent =
+    `${PLAN_TOTAL} planned entries across Sep 10–Sep 30 (4x/week Push/Pull, near-daily incline walk, no full rest days). Click once — safe to click again, won't duplicate.`;
   document.getElementById('wDate').value = todayISO();
   document.getElementById('wgtDate').value = todayISO();
   await Promise.all([loadRecentWorkouts(), loadRecentWeights(), loadGoal()]);
