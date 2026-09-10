@@ -149,9 +149,12 @@ const WALK = '12% incline, 30 min, 3 mph';
 const WALK_TAPER = '12% incline, 30 min, 3 mph — taper: lower sodium/carbs, keep water normal';
 const PUSH = { type: 'strength', title: 'Chest/Tri/Shoulders', detail: '' };
 const PULL = { type: 'strength', title: 'Back/Bi', detail: '' };
+const ABS = { type: 'other', title: 'Abs', detail: 'Hanging leg raises 3x12-15, cable crunch 3x15, plank 3x45-60s' };
 function cardio(detail) { return { type: 'cardio', title: 'Incline walk', detail }; }
 function cardioFlex(detail) { return { type: 'cardio', title: 'Incline walk (or golf)', detail }; }
 
+// Every day gets an ABS finisher appended — low fatigue cost, doesn't
+// interfere with recovery on the non-lifting days.
 const PLAN = [
   ['2026-09-10', [PUSH, cardio(WALK)]],
   ['2026-09-11', [PULL, cardio(WALK)]],
@@ -174,7 +177,7 @@ const PLAN = [
   ['2026-09-28', [PULL, cardio(WALK_TAPER)]],
   ['2026-09-29', [cardioFlex(WALK_TAPER)]],
   ['2026-09-30', [cardio(WALK_TAPER)]],
-];
+].map(([date, entries]) => [date, [...entries, ABS]]);
 const PLAN_TOTAL = PLAN.reduce((n, [, entries]) => n + entries.length, 0);
 
 const els = {
