@@ -101,6 +101,14 @@ ul.recent li button:hover{color:var(--red)}
 <select id="wTitle"><option value="">Select…</option><option value="__new__">+ New title…</option></select>
 <input id="wTitleNew" type="text" placeholder="New title" hidden style="margin-top:8px"></div>
 </div>
+<div id="inclineFields" hidden>
+<div class="row" style="grid-template-columns:1fr 1fr 1fr">
+<div><label for="inclinePct">Incline %</label><input id="inclinePct" type="number" min="0" step="1" placeholder="12"></div>
+<div><label for="inclineMin">Duration (min)</label><input id="inclineMin" type="number" min="0" step="1" placeholder="30"></div>
+<div><label for="inclineMph">Speed (mph)</label><input id="inclineMph" type="number" min="0" step="0.1" placeholder="3"></div>
+</div>
+<button type="button" id="inclineUsualBtn" class="btn-link">Use my usual (12% / 30 min / 3 mph)</button>
+</div>
 <label for="wDetail">Detail (optional)</label>
 <input id="wDetail" type="text" placeholder="12% incline, 30 min, 3 mph">
 <label>Exercises (optional)</label>
@@ -354,6 +362,41 @@ function selectedOrNewValue(select, newInput) {
   return select.value === '__new__' ? newInput.value.trim() : select.value;
 }
 
+function currentTitle() {
+  return selectedOrNewValue(document.getElementById('wTitle'), document.getElementById('wTitleNew'));
+}
+
+function composeInclineDetail() {
+  const pct = document.getElementById('inclinePct').value;
+  const min = document.getElementById('inclineMin').value;
+  const mph = document.getElementById('inclineMph').value;
+  const parts = [];
+  if (pct !== '') parts.push(`${pct}% incline`);
+  if (min !== '') parts.push(`${min} min`);
+  if (mph !== '') parts.push(`${mph} mph`);
+  if (parts.length) document.getElementById('wDetail').value = parts.join(', ');
+}
+
+function updateInclineFieldsVisibility() {
+  document.getElementById('inclineFields').hidden = !currentTitle().toLowerCase().includes('incline');
+}
+
+function parseInclineDetail(detail) {
+  const m = /(\d+(?:\.\d+)?)\s*%\s*incline.*?(\d+(?:\.\d+)?)\s*min.*?(\d+(?:\.\d+)?)\s*mph/i.exec(detail || '');
+  if (!m) return null;
+  return { pct: m[1], min: m[2], mph: m[3] };
+}
+
+['wTitle'].forEach((id) => document.getElementById(id).addEventListener('change', updateInclineFieldsVisibility));
+document.getElementById('wTitleNew').addEventListener('input', updateInclineFieldsVisibility);
+['inclinePct', 'inclineMin', 'inclineMph'].forEach((id) => document.getElementById(id).addEventListener('input', composeInclineDetail));
+document.getElementById('inclineUsualBtn').addEventListener('click', () => {
+  document.getElementById('inclinePct').value = 12;
+  document.getElementById('inclineMin').value = 30;
+  document.getElementById('inclineMph').value = 3;
+  composeInclineDetail();
+});
+
 function renderSetRows(container, count, existingSets = []) {
   container.replaceChildren();
   for (let i = 0; i < count; i++) {
@@ -460,6 +503,10 @@ function resetWorkoutForm() {
   document.getElementById('exerciseRows').replaceChildren();
   document.getElementById('addWorkoutBtn').textContent = 'Add workout';
   document.getElementById('mergeHint').hidden = true;
+  document.getElementById('inclinePct').value = '';
+  document.getElementById('inclineMin').value = '';
+  document.getElementById('inclineMph').value = '';
+  document.getElementById('inclineFields').hidden = true;
 }
 
 function loadWorkoutIntoForm(w) {
@@ -478,6 +525,11 @@ function loadWorkoutIntoForm(w) {
   }
   document.getElementById('wDetail').value = w.detail || '';
   document.getElementById('wCompleted').checked = w.completed;
+  updateInclineFieldsVisibility();
+  const parsed = parseInclineDetail(w.detail);
+  document.getElementById('inclinePct').value = parsed?.pct ?? '';
+  document.getElementById('inclineMin').value = parsed?.min ?? '';
+  document.getElementById('inclineMph').value = parsed?.mph ?? '';
   document.getElementById('exerciseRows').replaceChildren();
   (w.exercises || []).forEach((ex) => addExerciseRow(ex.name, ex.sets));
   if ((w.exercises || []).length === 0) addExerciseRow();
