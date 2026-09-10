@@ -24,11 +24,18 @@ input,select{width:100%;min-width:0;font:inherit;background:white;border:1px sol
 input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 code{background:var(--accent-tint);padding:1px 5px;border-radius:4px;font-size:.85em}
-.exercise-row{display:flex;gap:8px;margin-bottom:8px}
-.exercise-row .ex-name{flex:1}
-.exercise-row .ex-sets{flex:2}
-.exercise-row button{background:none;border:1px solid var(--line);border-radius:8px;color:var(--muted);width:38px;flex:none;padding:0;font-weight:700}
-.exercise-row button:hover{border-color:var(--red);color:var(--red)}
+.exercise-row{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.exercise-row .ex-header{display:flex;gap:8px}
+.exercise-row .ex-name{flex:2}
+.exercise-row .ex-sets-count{flex:1}
+.exercise-row .ex-name-new{margin-top:8px}
+.exercise-row .ex-remove{background:none;border:1px solid var(--line);border-radius:8px;color:var(--muted);width:38px;flex:none;padding:0;font-weight:700}
+.exercise-row .ex-remove:hover{border-color:var(--red);color:var(--red)}
+.set-rows{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.set-row{display:flex;align-items:center;gap:8px}
+.set-row .set-num{font-size:.78rem;color:var(--muted);width:16px;flex:none}
+.set-row .set-weight{flex:1}
+.set-row .set-reps{flex:1}
 .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:14px}
 .checkbox-row input{width:auto}
 .checkbox-row label{margin:0;font-weight:600;font-size:.88rem}
@@ -91,12 +98,12 @@ ul.recent li button:hover{color:var(--red)}
 <option value="other">Other</option>
 </select></div>
 <div><label for="wTitle">Title</label>
-<input id="wTitle" type="text" placeholder="Chest/Tri/Shoulders"></div>
+<select id="wTitle"><option value="">Select…</option><option value="__new__">+ New title…</option></select>
+<input id="wTitleNew" type="text" placeholder="New title" hidden style="margin-top:8px"></div>
 </div>
 <label for="wDetail">Detail (optional)</label>
 <input id="wDetail" type="text" placeholder="12% incline, 30 min, 3 mph">
 <label>Exercises (optional)</label>
-<p class="hint" style="margin:-2px 0 10px">Sets as <code>weight x reps</code>, comma-separated. Bodyweight is fine as <code>BW</code> or <code>BW+25</code>.</p>
 <div id="exerciseRows"></div>
 <button type="button" id="addExerciseRowBtn" class="btn-link">+ Add exercise</button>
 <div class="checkbox-row">
@@ -273,6 +280,7 @@ document.getElementById('loadPlanBtn').addEventListener('click', async () => {
     const skipped = PLAN_TOTAL - rows.length;
     document.getElementById('planDescription').textContent =
       `Cleared stale planned entries and loaded ${rows.length} fresh one${rows.length === 1 ? '' : 's'}${skipped ? ` (${skipped} already-completed entries kept as-is)` : ''}. Safe to click again — it won't duplicate or touch anything marked done.`;
+    await refreshKnownLists();
     await loadRecentWorkouts();
   } catch (err) {
     showError('planWarning', err.message || String(err));
@@ -291,55 +299,161 @@ async function enterApp() {
     `${PLAN_TOTAL} planned entries, Sep 10–29 (continuing from your Sep 9 Push day): 3-day Push/Pull/Cardio rotation, Denver band workouts Sep 25-27, taper from Sep 28. Clears stale not-yet-done entries first, then reloads — anything already marked done is left untouched.`;
   document.getElementById('wDate').value = todayISO();
   document.getElementById('wgtDate').value = todayISO();
+  await refreshKnownLists();
   await Promise.all([loadRecentWorkouts(), loadRecentWeights(), loadGoal()]);
 }
 
 let editingWorkoutId = null;
+let knownTitles = [];
+let knownExerciseNames = [];
+const SETS_COUNT_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8];
+const REPS_OPTIONS = Array.from({ length: 30 }, (_, i) => i + 1);
 
-function parseSetsShorthand(str) {
-  return str.split(',').map((tok) => tok.trim()).filter(Boolean).map((tok) => {
-    const i = tok.toLowerCase().lastIndexOf('x');
-    if (i === -1) return { weight: tok, reps: null };
-    return { weight: tok.slice(0, i).trim(), reps: parseInt(tok.slice(i + 1).trim(), 10) || null };
+async function refreshKnownLists() {
+  const { data } = await sb.from('workouts').select('title, exercises');
+  const titles = new Set();
+  const names = new Set();
+  (data || []).forEach((w) => {
+    if (w.title) titles.add(w.title);
+    (w.exercises || []).forEach((ex) => { if (ex.name) names.add(ex.name); });
+  });
+  knownTitles = [...titles].sort();
+  knownExerciseNames = [...names].sort();
+  populateSelect(document.getElementById('wTitle'), knownTitles, document.getElementById('wTitle').value);
+}
+
+function populateSelect(select, options, keepValue) {
+  select.replaceChildren();
+  const blank = document.createElement('option');
+  blank.value = '';
+  blank.textContent = 'Select…';
+  select.append(blank);
+  options.forEach((opt) => {
+    const el = document.createElement('option');
+    el.value = opt;
+    el.textContent = opt;
+    select.append(el);
+  });
+  const newOpt = document.createElement('option');
+  newOpt.value = '__new__';
+  newOpt.textContent = '+ New…';
+  select.append(newOpt);
+  if (keepValue && options.includes(keepValue)) select.value = keepValue;
+}
+
+function wireNewToggle(select, newInput) {
+  select.addEventListener('change', () => {
+    newInput.hidden = select.value !== '__new__';
+    if (!newInput.hidden) newInput.focus();
   });
 }
-function formatSetsShorthand(sets) {
-  return (sets || []).map((s) => s.reps != null ? `${s.weight}x${s.reps}` : s.weight).join(', ');
+wireNewToggle(document.getElementById('wTitle'), document.getElementById('wTitleNew'));
+
+function selectedOrNewValue(select, newInput) {
+  return select.value === '__new__' ? newInput.value.trim() : select.value;
 }
 
-function addExerciseRow(name = '', setsShorthand = '') {
+function renderSetRows(container, count, existingSets = []) {
+  container.replaceChildren();
+  for (let i = 0; i < count; i++) {
+    const existing = existingSets[i];
+    const row = document.createElement('div');
+    row.className = 'set-row';
+    const num = document.createElement('span');
+    num.className = 'set-num';
+    num.textContent = i + 1;
+    const weight = document.createElement('input');
+    weight.className = 'set-weight';
+    weight.type = 'text';
+    weight.placeholder = '185 or BW+25';
+    weight.value = existing ? existing.weight : '';
+    const reps = document.createElement('select');
+    reps.className = 'set-reps';
+    const blank = document.createElement('option');
+    blank.value = '';
+    blank.textContent = 'Reps';
+    reps.append(blank);
+    REPS_OPTIONS.forEach((r) => {
+      const o = document.createElement('option');
+      o.value = r;
+      o.textContent = r;
+      reps.append(o);
+    });
+    if (existing?.reps != null) reps.value = existing.reps;
+    row.append(num, weight, reps);
+    container.append(row);
+  }
+}
+
+function addExerciseRow(name = '', sets = []) {
   const row = document.createElement('div');
   row.className = 'exercise-row';
-  const nameInput = document.createElement('input');
-  nameInput.className = 'ex-name';
-  nameInput.type = 'text';
-  nameInput.placeholder = 'Flat Bench';
-  nameInput.value = name;
-  const setsInput = document.createElement('input');
-  setsInput.className = 'ex-sets';
-  setsInput.type = 'text';
-  setsInput.placeholder = '135x8, 185x8, 185x8, 195x8';
-  setsInput.value = setsShorthand;
+
+  const header = document.createElement('div');
+  header.className = 'ex-header';
+  const nameSelect = document.createElement('select');
+  nameSelect.className = 'ex-name';
+  const setsCount = document.createElement('select');
+  setsCount.className = 'ex-sets-count';
+  SETS_COUNT_OPTIONS.forEach((n) => {
+    const o = document.createElement('option');
+    o.value = n;
+    o.textContent = `${n} set${n === 1 ? '' : 's'}`;
+    setsCount.append(o);
+  });
   const removeBtn = document.createElement('button');
   removeBtn.type = 'button';
+  removeBtn.className = 'ex-remove';
   removeBtn.textContent = '×';
   removeBtn.addEventListener('click', () => row.remove());
-  row.append(nameInput, setsInput, removeBtn);
+  header.append(nameSelect, setsCount, removeBtn);
+
+  const nameNew = document.createElement('input');
+  nameNew.className = 'ex-name-new';
+  nameNew.type = 'text';
+  nameNew.placeholder = 'New exercise name';
+  nameNew.hidden = true;
+
+  const setRows = document.createElement('div');
+  setRows.className = 'set-rows';
+
+  populateSelect(nameSelect, knownExerciseNames, name);
+  if (name && !knownExerciseNames.includes(name)) {
+    nameSelect.value = '__new__';
+    nameNew.hidden = false;
+    nameNew.value = name;
+  }
+  wireNewToggle(nameSelect, nameNew);
+
+  const initialCount = Math.max(1, sets.length || 3);
+  setsCount.value = String(Math.min(initialCount, SETS_COUNT_OPTIONS[SETS_COUNT_OPTIONS.length - 1]));
+  renderSetRows(setRows, Number(setsCount.value), sets);
+  setsCount.addEventListener('change', () => renderSetRows(setRows, Number(setsCount.value)));
+
+  row.append(header, nameNew, setRows);
   document.getElementById('exerciseRows').append(row);
 }
 
 function collectExercises() {
   return [...document.querySelectorAll('#exerciseRows .exercise-row')]
-    .map((row) => ({
-      name: row.querySelector('.ex-name').value.trim(),
-      sets: parseSetsShorthand(row.querySelector('.ex-sets').value),
-    }))
+    .map((row) => {
+      const name = selectedOrNewValue(row.querySelector('.ex-name'), row.querySelector('.ex-name-new'));
+      const sets = [...row.querySelectorAll('.set-row')]
+        .map((setRow) => ({
+          weight: setRow.querySelector('.set-weight').value.trim(),
+          reps: setRow.querySelector('.set-reps').value ? Number(setRow.querySelector('.set-reps').value) : null,
+        }))
+        .filter((s) => s.weight);
+      return { name, sets };
+    })
     .filter((ex) => ex.name);
 }
 
 function resetWorkoutForm() {
   editingWorkoutId = null;
   document.getElementById('wTitle').value = '';
+  document.getElementById('wTitleNew').hidden = true;
+  document.getElementById('wTitleNew').value = '';
   document.getElementById('wDetail').value = '';
   document.getElementById('wCompleted').checked = true;
   document.getElementById('exerciseRows').replaceChildren();
@@ -351,11 +465,20 @@ function loadWorkoutIntoForm(w) {
   editingWorkoutId = w.id;
   document.getElementById('wDate').value = w.date;
   document.getElementById('wType').value = w.type;
-  document.getElementById('wTitle').value = w.title;
+  const titleSelect = document.getElementById('wTitle');
+  const titleNew = document.getElementById('wTitleNew');
+  populateSelect(titleSelect, knownTitles, w.title);
+  if (!knownTitles.includes(w.title)) {
+    titleSelect.value = '__new__';
+    titleNew.hidden = false;
+    titleNew.value = w.title;
+  } else {
+    titleNew.hidden = true;
+  }
   document.getElementById('wDetail').value = w.detail || '';
   document.getElementById('wCompleted').checked = w.completed;
   document.getElementById('exerciseRows').replaceChildren();
-  (w.exercises || []).forEach((ex) => addExerciseRow(ex.name, formatSetsShorthand(ex.sets)));
+  (w.exercises || []).forEach((ex) => addExerciseRow(ex.name, ex.sets));
   if ((w.exercises || []).length === 0) addExerciseRow();
   document.getElementById('addWorkoutBtn').textContent = 'Update workout';
   const hint = document.getElementById('mergeHint');
@@ -434,7 +557,7 @@ document.getElementById('addWorkoutBtn').addEventListener('click', async () => {
   clearError('workoutWarning');
   const date = document.getElementById('wDate').value;
   const type = document.getElementById('wType').value;
-  const title = document.getElementById('wTitle').value.trim();
+  const title = selectedOrNewValue(document.getElementById('wTitle'), document.getElementById('wTitleNew'));
   const detail = document.getElementById('wDetail').value.trim();
   const completed = document.getElementById('wCompleted').checked;
   const exercises = collectExercises();
@@ -447,6 +570,7 @@ document.getElementById('addWorkoutBtn').addEventListener('click', async () => {
     const { error } = await sb.from('workouts').update({ type, title, detail, completed, exercises }).eq('id', editingWorkoutId);
     if (error) { showError('workoutWarning', error.message); return; }
     resetWorkoutForm();
+    await refreshKnownLists();
     await loadRecentWorkouts();
     return;
   }
@@ -463,6 +587,7 @@ document.getElementById('addWorkoutBtn').addEventListener('click', async () => {
     if (error) { showError('workoutWarning', error.message); return; }
   }
   resetWorkoutForm();
+  await refreshKnownLists();
   await loadRecentWorkouts();
 });
 
