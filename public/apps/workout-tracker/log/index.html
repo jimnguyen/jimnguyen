@@ -70,7 +70,7 @@ ul.recent li button:hover{color:var(--red)}
 <h2>Load a plan</h2>
 <p class="hint" id="planDescription"></p>
 <div id="planWarning" class="warning" hidden></div>
-<button type="button" id="loadPlanBtn" class="btn-primary btn-block">Load/fix cut plan (Sep 10 – Sep 30)</button>
+<button type="button" id="loadPlanBtn" class="btn-primary btn-block">Load/fix cut plan (Sep 10 – Sep 29)</button>
 </div>
 
 <div class="card">
@@ -143,47 +143,56 @@ function todayISO() {
 }
 
 // Cut plan for Sep 10 – Sep 30. Sep 9 was the real start (Push, logged
-// manually via the form below, not part of this bulk plan) — this picks up
-// the rotation correctly from there (Pull next, not another Push) so no two
-// same-muscle-group sessions land back to back. 4x/week lifting (Push/Pull,
-// no legs), incline walk nearly every day, no full rest days. Golf
-// substitutes for incline walk on flexible days. Final 4 days note the
-// sodium/carb taper.
+// manually via the form below, not part of this bulk plan). Strict 3-day
+// Push -> Pull -> Cardio rotation (~72h between same muscle group), moderate
+// volume since frequency is already high. Sep 25-27 is a Denver golf trip:
+// band/cable Push and Pull sessions instead of gym lifts, golf logged
+// alongside (cart golf isn't a cardio substitute), altitude-aware easy
+// cardio. Sep 28-30 tapers sodium/carbs (normal water) into the weigh-in;
+// Sep 30 itself carries no training, just the morning weigh-in.
 const WALK = '12% incline, 30 min, 3 mph';
 const WALK_TAPER = '12% incline, 30 min, 3 mph — taper: lower sodium/carbs, keep water normal';
-const PUSH = { type: 'strength', title: 'Chest/Tri/Shoulders', detail: '' };
-const PULL = { type: 'strength', title: 'Back/Bi', detail: '' };
+const RECOVERY_WALK = '30-40 min easy incline walk, normal step target';
+const DENVER_CARDIO = '20-30 min conversational pace at altitude — walk preferred over running, keep it truly easy';
+const FINAL_TAPER_WALK = "20-30 min easy incline walk, normal steps — taper: lower sodium/carbs, keep water normal, don't chase exhaustion";
+const LIFT_VOL = '3 main movements x 3 sets, ~1-2 reps in reserve';
+const GYM_PUSH = { type: 'strength', title: 'Chest/Shoulders/Triceps', detail: LIFT_VOL };
+const GYM_PULL = { type: 'strength', title: 'Back/Biceps', detail: LIFT_VOL };
+const BAND_PUSH = { type: 'strength', title: 'Chest/Shoulders/Triceps (bands)', detail: 'Door press, band overhead press, lateral raises, band tricep pushdowns — 3-4 sets x 8-20 reps' };
+const BAND_PULL = { type: 'strength', title: 'Back/Biceps (bands)', detail: 'Band lat pulldown, rows, face pulls, band curls — 3-4 sets x 8-20 reps' };
+const GOLF = { type: 'other', title: 'Golf', detail: 'Riding cart — not a cardio replacement' };
 const ABS = { type: 'other', title: 'Abs', detail: 'Hanging leg raises 3x12-15, cable crunch 3x15, plank 3x45-60s' };
-function cardio(detail) { return { type: 'cardio', title: 'Incline walk', detail }; }
-function cardioFlex(detail) { return { type: 'cardio', title: 'Incline walk (or golf)', detail }; }
+function walk(detail) { return { type: 'cardio', title: 'Incline walk', detail }; }
+function recoveryWalk() { return { type: 'cardio', title: 'Incline walk (recovery)', detail: RECOVERY_WALK }; }
+function denverCardio() { return { type: 'cardio', title: 'Easy cardio (Denver altitude)', detail: DENVER_CARDIO }; }
+function finalTaperWalk() { return { type: 'cardio', title: 'Easy incline walk', detail: FINAL_TAPER_WALK }; }
 
-// Every day gets an ABS finisher appended — low fatigue cost, doesn't
-// interfere with recovery on the non-lifting days.
+// Every day (except Sep 30, intentionally training-free before the weigh-in)
+// gets an ABS finisher appended — low fatigue cost either way.
 const PLAN_START = '2026-09-10';
 const PLAN_END = '2026-09-30';
 const PLAN = [
-  ['2026-09-10', [PULL, cardio(WALK)]],
-  ['2026-09-11', [cardioFlex(WALK)]],
-  ['2026-09-12', [PUSH, cardio(WALK)]],
-  ['2026-09-13', [PULL, cardio(WALK)]],
-  ['2026-09-14', [cardioFlex(WALK)]],
-  ['2026-09-15', [cardio(WALK)]],
-  ['2026-09-16', [PUSH, cardio(WALK)]],
-  ['2026-09-17', [PULL, cardio(WALK)]],
-  ['2026-09-18', [cardioFlex(WALK)]],
-  ['2026-09-19', [PUSH, cardio(WALK)]],
-  ['2026-09-20', [PULL, cardio(WALK)]],
-  ['2026-09-21', [cardioFlex(WALK)]],
-  ['2026-09-22', [cardio(WALK)]],
-  ['2026-09-23', [PUSH, cardio(WALK)]],
-  ['2026-09-24', [PULL, cardio(WALK)]],
-  ['2026-09-25', [cardioFlex(WALK)]],
-  ['2026-09-26', [PUSH, cardio(WALK)]],
-  ['2026-09-27', [PULL, cardio(WALK_TAPER)]],
-  ['2026-09-28', [cardioFlex(WALK_TAPER)]],
-  ['2026-09-29', [cardio(WALK_TAPER)]],
-  ['2026-09-30', [cardio(WALK_TAPER)]],
-].map(([date, entries]) => [date, [...entries, ABS]]);
+  ['2026-09-10', [GYM_PULL, walk(WALK), ABS]],
+  ['2026-09-11', [recoveryWalk(), ABS]],
+  ['2026-09-12', [GYM_PUSH, walk(WALK), ABS]],
+  ['2026-09-13', [GYM_PULL, walk(WALK), ABS]],
+  ['2026-09-14', [recoveryWalk(), ABS]],
+  ['2026-09-15', [GYM_PUSH, walk(WALK), ABS]],
+  ['2026-09-16', [GYM_PULL, walk(WALK), ABS]],
+  ['2026-09-17', [recoveryWalk(), ABS]],
+  ['2026-09-18', [GYM_PUSH, walk(WALK), ABS]],
+  ['2026-09-19', [GYM_PULL, walk(WALK), ABS]],
+  ['2026-09-20', [recoveryWalk(), ABS]],
+  ['2026-09-21', [GYM_PUSH, walk(WALK), ABS]],
+  ['2026-09-22', [GYM_PULL, walk(WALK), ABS]],
+  ['2026-09-23', [recoveryWalk(), ABS]],
+  ['2026-09-24', [GYM_PUSH, walk(WALK), ABS]],
+  ['2026-09-25', [BAND_PULL, GOLF, ABS]],
+  ['2026-09-26', [denverCardio(), GOLF, ABS]],
+  ['2026-09-27', [BAND_PUSH, GOLF, ABS]],
+  ['2026-09-28', [GYM_PULL, walk(WALK_TAPER), ABS]],
+  ['2026-09-29', [finalTaperWalk(), ABS]],
+];
 const PLAN_TOTAL = PLAN.reduce((n, [, entries]) => n + entries.length, 0);
 
 const els = {
@@ -242,7 +251,7 @@ document.getElementById('loadPlanBtn').addEventListener('click', async () => {
       }
     }
     if (rows.length === 0) {
-      showError('planWarning', 'Already loaded — every planned entry for Sep 10–30 already exists.');
+      showError('planWarning', 'Already loaded — every planned entry for Sep 10–29 already exists.');
       return;
     }
     const { error: insertErr } = await sb.from('workouts').insert(rows);
@@ -265,7 +274,7 @@ async function enterApp() {
   els.login.hidden = true;
   els.app.hidden = false;
   document.getElementById('planDescription').textContent =
-    `${PLAN_TOTAL} planned entries across Sep 10–Sep 30, correctly continuing from your Sep 9 Push day. Clears stale not-yet-done entries first, then reloads — anything already marked done is left untouched.`;
+    `${PLAN_TOTAL} planned entries, Sep 10–29 (continuing from your Sep 9 Push day): 3-day Push/Pull/Cardio rotation, Denver band workouts Sep 25-27, taper from Sep 28. Clears stale not-yet-done entries first, then reloads — anything already marked done is left untouched.`;
   document.getElementById('wDate').value = todayISO();
   document.getElementById('wgtDate').value = todayISO();
   await Promise.all([loadRecentWorkouts(), loadRecentWeights(), loadGoal()]);
