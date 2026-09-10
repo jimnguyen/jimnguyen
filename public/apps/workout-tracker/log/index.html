@@ -70,7 +70,7 @@ ul.recent li button:hover{color:var(--red)}
 <h2>Load a plan</h2>
 <p class="hint" id="planDescription"></p>
 <div id="planWarning" class="warning" hidden></div>
-<button type="button" id="loadPlanBtn" class="btn-primary btn-block">Load 21-day cut plan (Sep 10 – Sep 30)</button>
+<button type="button" id="loadPlanBtn" class="btn-primary btn-block">Load/fix cut plan (Sep 10 – Sep 30)</button>
 </div>
 
 <div class="card">
@@ -142,9 +142,13 @@ function todayISO() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
-// 21-day cut plan, Sep 10 – Sep 30: 4x/week lifting (Push/Pull, no legs),
-// incline walk nearly every day, no full rest days. Golf substitutes for
-// incline walk on flexible days. Final 4 days note the sodium/carb taper.
+// Cut plan for Sep 10 – Sep 30. Sep 9 was the real start (Push, logged
+// manually via the form below, not part of this bulk plan) — this picks up
+// the rotation correctly from there (Pull next, not another Push) so no two
+// same-muscle-group sessions land back to back. 4x/week lifting (Push/Pull,
+// no legs), incline walk nearly every day, no full rest days. Golf
+// substitutes for incline walk on flexible days. Final 4 days note the
+// sodium/carb taper.
 const WALK = '12% incline, 30 min, 3 mph';
 const WALK_TAPER = '12% incline, 30 min, 3 mph — taper: lower sodium/carbs, keep water normal';
 const PUSH = { type: 'strength', title: 'Chest/Tri/Shoulders', detail: '' };
@@ -155,27 +159,29 @@ function cardioFlex(detail) { return { type: 'cardio', title: 'Incline walk (or 
 
 // Every day gets an ABS finisher appended — low fatigue cost, doesn't
 // interfere with recovery on the non-lifting days.
+const PLAN_START = '2026-09-10';
+const PLAN_END = '2026-09-30';
 const PLAN = [
-  ['2026-09-10', [PUSH, cardio(WALK)]],
-  ['2026-09-11', [PULL, cardio(WALK)]],
-  ['2026-09-12', [cardioFlex(WALK)]],
-  ['2026-09-13', [PUSH, cardio(WALK)]],
-  ['2026-09-14', [PULL, cardio(WALK)]],
-  ['2026-09-15', [cardioFlex(WALK)]],
-  ['2026-09-16', [cardio(WALK)]],
-  ['2026-09-17', [PUSH, cardio(WALK)]],
-  ['2026-09-18', [PULL, cardio(WALK)]],
-  ['2026-09-19', [cardioFlex(WALK)]],
-  ['2026-09-20', [PUSH, cardio(WALK)]],
-  ['2026-09-21', [PULL, cardio(WALK)]],
-  ['2026-09-22', [cardioFlex(WALK)]],
-  ['2026-09-23', [cardio(WALK)]],
-  ['2026-09-24', [PUSH, cardio(WALK)]],
-  ['2026-09-25', [PULL, cardio(WALK)]],
-  ['2026-09-26', [cardioFlex(WALK)]],
-  ['2026-09-27', [PUSH, cardio(WALK_TAPER)]],
-  ['2026-09-28', [PULL, cardio(WALK_TAPER)]],
-  ['2026-09-29', [cardioFlex(WALK_TAPER)]],
+  ['2026-09-10', [PULL, cardio(WALK)]],
+  ['2026-09-11', [cardioFlex(WALK)]],
+  ['2026-09-12', [PUSH, cardio(WALK)]],
+  ['2026-09-13', [PULL, cardio(WALK)]],
+  ['2026-09-14', [cardioFlex(WALK)]],
+  ['2026-09-15', [cardio(WALK)]],
+  ['2026-09-16', [PUSH, cardio(WALK)]],
+  ['2026-09-17', [PULL, cardio(WALK)]],
+  ['2026-09-18', [cardioFlex(WALK)]],
+  ['2026-09-19', [PUSH, cardio(WALK)]],
+  ['2026-09-20', [PULL, cardio(WALK)]],
+  ['2026-09-21', [cardioFlex(WALK)]],
+  ['2026-09-22', [cardio(WALK)]],
+  ['2026-09-23', [PUSH, cardio(WALK)]],
+  ['2026-09-24', [PULL, cardio(WALK)]],
+  ['2026-09-25', [cardioFlex(WALK)]],
+  ['2026-09-26', [PUSH, cardio(WALK)]],
+  ['2026-09-27', [PULL, cardio(WALK_TAPER)]],
+  ['2026-09-28', [cardioFlex(WALK_TAPER)]],
+  ['2026-09-29', [cardio(WALK_TAPER)]],
   ['2026-09-30', [cardio(WALK_TAPER)]],
 ].map(([date, entries]) => [date, [...entries, ABS]]);
 const PLAN_TOTAL = PLAN.reduce((n, [, entries]) => n + entries.length, 0);
@@ -217,9 +223,14 @@ document.getElementById('loadPlanBtn').addEventListener('click', async () => {
   const btn = document.getElementById('loadPlanBtn');
   btn.disabled = true;
   try {
-    const from = PLAN[0][0];
-    const to = PLAN[PLAN.length - 1][0];
-    const { data: existing, error: fetchErr } = await sb.from('workouts').select('date,title').gte('date', from).lte('date', to);
+    // Clear out stale not-yet-done planned entries in range first (e.g. from
+    // an earlier version of this plan) — anything already marked done is
+    // left alone, since it reflects something that actually happened.
+    const { error: deleteErr } = await sb.from('workouts').delete()
+      .gte('date', PLAN_START).lte('date', PLAN_END).eq('completed', false);
+    if (deleteErr) throw deleteErr;
+
+    const { data: existing, error: fetchErr } = await sb.from('workouts').select('date,title').gte('date', PLAN_START).lte('date', PLAN_END);
     if (fetchErr) throw fetchErr;
     const existingKeys = new Set((existing || []).map((w) => w.date + '|' + w.title));
 
@@ -238,7 +249,7 @@ document.getElementById('loadPlanBtn').addEventListener('click', async () => {
     if (insertErr) throw insertErr;
     const skipped = PLAN_TOTAL - rows.length;
     document.getElementById('planDescription').textContent =
-      `Loaded ${rows.length} planned entr${rows.length === 1 ? 'y' : 'ies'}${skipped ? ` (${skipped} already existed, skipped)` : ''}. Safe to click again later — it won't duplicate.`;
+      `Cleared stale planned entries and loaded ${rows.length} fresh one${rows.length === 1 ? '' : 's'}${skipped ? ` (${skipped} already-completed entries kept as-is)` : ''}. Safe to click again — it won't duplicate or touch anything marked done.`;
     await loadRecentWorkouts();
   } catch (err) {
     showError('planWarning', err.message || String(err));
@@ -254,7 +265,7 @@ async function enterApp() {
   els.login.hidden = true;
   els.app.hidden = false;
   document.getElementById('planDescription').textContent =
-    `${PLAN_TOTAL} planned entries across Sep 10–Sep 30 (4x/week Push/Pull, near-daily incline walk, no full rest days). Click once — safe to click again, won't duplicate.`;
+    `${PLAN_TOTAL} planned entries across Sep 10–Sep 30, correctly continuing from your Sep 9 Push day. Clears stale not-yet-done entries first, then reloads — anything already marked done is left untouched.`;
   document.getElementById('wDate').value = todayISO();
   document.getElementById('wgtDate').value = todayISO();
   await Promise.all([loadRecentWorkouts(), loadRecentWeights(), loadGoal()]);
