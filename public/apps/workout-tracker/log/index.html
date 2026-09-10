@@ -152,6 +152,9 @@ function todayISO() {
   const d = new Date();
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
+function daysBetween(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+}
 
 // Cut plan for Sep 10 – Sep 30. Sep 9 was the real start (Push, logged
 // manually via the form below, not part of this bulk plan). Strict 3-day
@@ -364,7 +367,13 @@ function loadWorkoutIntoForm(w) {
 document.getElementById('addExerciseRowBtn').addEventListener('click', () => addExerciseRow());
 
 async function loadRecentWorkouts() {
-  const { data } = await sb.from('workouts').select('*').order('date', { ascending: false }).order('created_at', { ascending: false }).limit(10);
+  // Sorted by closeness to today (not just most-future-first) so a bulk plan
+  // full of far-future dates doesn't bury what's actually near-term relevant.
+  const { data: all } = await sb.from('workouts').select('*');
+  const today = todayISO();
+  const data = (all || [])
+    .sort((a, b) => Math.abs(daysBetween(today, a.date)) - Math.abs(daysBetween(today, b.date)))
+    .slice(0, 15);
   const list = document.getElementById('recentWorkouts');
   list.replaceChildren();
   (data || []).forEach((w) => {
