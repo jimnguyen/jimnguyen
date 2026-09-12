@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Log Korean study</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--red:#c02f2f;--red-tint:#fdecec}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{max-width:560px;margin:auto;padding:44px 24px 80px}
+header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:28px}
+h1{font-size:clamp(1.7rem,5vw,2.2rem);letter-spacing:-.04em;margin:0}
+header p{color:var(--muted);font-size:.95rem;margin:8px 0 0}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}
+.back-link:hover{color:var(--accent-dark)}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:20px}
+h2{font-size:1.05rem;margin:0 0 14px}
+.hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+label{display:block;margin:16px 0 6px;font-weight:650;font-size:.88rem}
+label:first-of-type{margin-top:0}
+input,select{width:100%;min-width:0;font:inherit;background:white;border:1px solid #becbd3;border-radius:8px;color:var(--ink);padding:10px 12px}
+input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checkbox-row{display:flex;align-items:center;gap:8px;margin-top:14px}
+.checkbox-row input{width:auto}
+.checkbox-row label{margin:0;font-weight:600;font-size:.88rem}
+button{font:inherit;font-weight:700;border:none;border-radius:999px;padding:11px 20px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-block{width:100%;margin-top:18px}
+.btn-link{background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;text-decoration:underline;padding:0;cursor:pointer}
+.btn-link:hover{color:var(--accent-dark)}
+.warning{background:var(--red-tint);color:var(--red);border-radius:10px;padding:11px 14px;font-size:.85rem;font-weight:600;margin-top:14px}
+.who{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:.85rem;color:var(--muted)}
+ul.recent{list-style:none;margin:0;padding:0}
+ul.recent li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #edf0f2;font-size:.85rem}
+ul.recent li:first-child{border-top:none}
+ul.recent li button{background:none;border:none;color:var(--muted);font-weight:600;font-size:.78rem;cursor:pointer}
+ul.recent li button:hover{color:var(--red)}
+ul.recent li .actions{display:flex;gap:10px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body><main>
+<a class="back-link" href="../">&larr; Korean Study Tracker</a>
+<header>
+<h1>Log Korean study</h1>
+<p>Sign in to add entries. The calendar page reads whatever's saved here.</p>
+</header>
+
+<section id="loginSection" class="card">
+<h2>Sign in</h2>
+<label for="email">Email</label>
+<input id="email" type="email" autocomplete="username">
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password">
+<div id="loginWarning" class="warning" hidden></div>
+<button type="button" id="loginBtn" class="btn-primary btn-block">Sign in</button>
+</section>
+
+<section id="appSection" hidden>
+<div class="who">
+<span id="whoami"></span>
+<button type="button" id="logoutBtn" class="btn-link">Sign out</button>
+</div>
+
+<div class="card">
+<h2>Load the study plan</h2>
+<p class="hint" id="planDescription"></p>
+<div id="planWarning" class="warning" hidden></div>
+<button type="button" id="loadPlanBtn" class="btn-primary btn-block">Load/fix study plan</button>
+</div>
+
+<div class="card">
+<h2>Add a session</h2>
+<label for="sDate">Date</label>
+<input id="sDate" type="date">
+<label for="sSubject">Subject</label>
+<select id="sSubject">
+<option value="Grammar & Reading">Grammar & Reading</option>
+<option value="Vocabulary Lab">Vocabulary Lab</option>
+<option value="Listening Lab">Listening Lab</option>
+<option value="Speaking Practice">Speaking Practice</option>
+<option value="Review & Output">Review & Output</option>
+</select>
+<label for="sDetail">Detail (optional)</label>
+<input id="sDetail" type="text" placeholder="HTSK Unit 2 lesson 3, or notes from today's session">
+<div class="checkbox-row">
+<input id="sCompleted" type="checkbox" checked>
+<label for="sCompleted">Already done (uncheck if just planned)</label>
+</div>
+<p class="hint" id="mergeHint" hidden></p>
+<div id="sessionWarning" class="warning" hidden></div>
+<button type="button" id="addSessionBtn" class="btn-primary btn-block">Add session</button>
+</div>
+
+<div class="card">
+<h2>Recent sessions</h2>
+<ul class="recent" id="recentSessions"></ul>
+</div>
+
+<div class="card">
+<h2>Goal</h2>
+<div class="row">
+<div><label for="goalStartDate">Start date</label><input id="goalStartDate" type="date"></div>
+<div><label for="goalTargetDate">Target date</label><input id="goalTargetDate" type="date"></div>
+</div>
+<label for="goalLevel">Target level</label>
+<input id="goalLevel" type="text" placeholder="Conversational — ACTFL Intermediate Low/Mid">
+<div id="goalWarning" class="warning" hidden></div>
+<button type="button" id="saveGoalBtn" class="btn-primary btn-block">Save goal</button>
+</div>
+<a class="back-link" href="../">&larr; Back to calendar</a>
+</section>
+</main>
+<script>
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const configured = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY');
+const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const fmt = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
+function todayISO(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function addDaysISO(iso, n) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return todayISO(d);
+}
+function daysBetween(a, b) {
+  return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000);
+}
+function nextMonday(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  const day = d.getDay();
+  const add = day === 1 ? 0 : (8 - day) % 7;
+  return addDaysISO(iso, add);
+}
+
+// The 10-12 month curriculum: four phases, each with phase-specific detail
+// text per weekly subject. Generated programmatically rather than hardcoded
+// day-by-day, so the total length/phase boundaries are easy to adjust.
+const PHASES = [
+  {
+    name: 'KOR 101', weeks: [1, 4],
+    detail: {
+      'Grammar & Reading': 'HTSK Unit 0-1: Hangul & basic particles (은/는, 이/가), -아요/어요 conjugation',
+      'Vocabulary Lab': 'Core vocab: numbers, days, basic nouns (target ~200 words)',
+      'Listening Lab': 'TTMIK beginner audio lessons',
+      'Speaking Practice': 'italki tutor: pronunciation + simple self-introduction Q&A (start week 2)',
+      'Review & Output': "Review this week's Anki deck, write 3-5 sentences using new grammar, say them aloud",
+    },
+  },
+  {
+    name: 'KOR 102-103', weeks: [5, 17],
+    detail: {
+      'Grammar & Reading': 'HTSK Unit 2-3: past/future tense, connectors',
+      'Vocabulary Lab': 'Frequency deck toward ~800-1000 words',
+      'Listening Lab': 'TTMIK Stories (beginner graded readers/audio)',
+      'Speaking Practice': 'italki tutor: more Korean-only conversation',
+      'Review & Output': "Review flagged Anki cards, write a short paragraph using this week's grammar",
+    },
+  },
+  {
+    name: 'KOR 201-202', weeks: [18, 34],
+    detail: {
+      'Grammar & Reading': 'Sogang/Yonsei textbook: structured intermediate grammar',
+      'Vocabulary Lab': 'Frequency deck toward ~2000-3000 words',
+      'Listening Lab': 'K-dramas with Korean subtitles',
+      'Speaking Practice': 'italki tutor: free conversation (optional TOPIK I mock test ~wk 26-30)',
+      'Review & Output': 'Summarize a drama scene out loud, review weak grammar points',
+    },
+  },
+  {
+    name: 'KOR 301', weeks: [35, 52],
+    detail: {
+      'Grammar & Reading': 'Fill grammar gaps as they surface; review weak points',
+      'Vocabulary Lab': 'Active recall of full vocab bank + new context words',
+      'Listening Lab': 'K-dramas, progressively drop subtitles',
+      'Speaking Practice': 'italki tutor: opinion/daily-life conversation, no drilling',
+      'Review & Output': 'Free-write a paragraph about your day, review flagged Anki cards',
+    },
+  },
+];
+function phaseForWeek(week) {
+  return PHASES.find((p) => week >= p.weeks[0] && week <= p.weeks[1]) || PHASES[PHASES.length - 1];
+}
+
+const WEEKLY_TEMPLATE = [
+  { dow: 1, subject: 'Grammar & Reading' },
+  { dow: 2, subject: 'Vocabulary Lab' },
+  { dow: 3, subject: 'Listening Lab' },
+  { dow: 4, subject: 'Grammar & Reading' },
+  { dow: 5, subject: 'Speaking Practice' },
+  { dow: 6, subject: 'Review & Output' },
+  // Sunday (dow 0) is rest — no entry.
+];
+
+function generatePlan(startMondayISO, totalWeeks) {
+  const plan = [];
+  for (let week = 1; week <= totalWeeks; week++) {
+    const phase = phaseForWeek(week);
+    for (const tmpl of WEEKLY_TEMPLATE) {
+      const dayOffset = (week - 1) * 7 + (tmpl.dow - 1);
+      const date = addDaysISO(startMondayISO, dayOffset);
+      plan.push({ date, subject: tmpl.subject, detail: `${phase.name}: ${phase.detail[tmpl.subject]}` });
+    }
+  }
+  return plan;
+}
+
+const PLAN_START = nextMonday(todayISO());
+const TOTAL_WEEKS = 52;
+const PLAN = generatePlan(PLAN_START, TOTAL_WEEKS);
+const PLAN_END = PLAN[PLAN.length - 1].date;
+
+const els = {
+  login: document.getElementById('loginSection'),
+  app: document.getElementById('appSection'),
+};
+
+function showError(id, message) {
+  const el = document.getElementById(id);
+  el.hidden = false;
+  el.textContent = message;
+}
+function clearError(id) {
+  document.getElementById(id).hidden = true;
+}
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  clearError('loginWarning');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { showError('loginWarning', error.message); return; }
+  await enterApp();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  els.app.hidden = true;
+  els.login.hidden = false;
+});
+
+let editingSessionId = null;
+
+async function enterApp() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  document.getElementById('whoami').textContent = 'Signed in as ' + user.email;
+  els.login.hidden = true;
+  els.app.hidden = false;
+  document.getElementById('planDescription').textContent =
+    `${PLAN.length} planned sessions starting Monday ${PLAN_START} across ${TOTAL_WEEKS} weeks (four phases: KOR 101 → 102-103 → 201-202 → 301). Clears stale not-yet-done entries first, then reloads — anything already marked done is left untouched.`;
+  document.getElementById('sDate').value = todayISO();
+  await Promise.all([loadRecentSessions(), loadGoal()]);
+}
+
+async function loadRecentSessions() {
+  const { data: all } = await sb.from('korean_sessions').select('*');
+  const today = todayISO();
+  const data = (all || [])
+    .sort((a, b) => Math.abs(daysBetween(today, a.date)) - Math.abs(daysBetween(today, b.date)))
+    .slice(0, 15);
+  const list = document.getElementById('recentSessions');
+  list.replaceChildren();
+  data.forEach((s) => {
+    const li = document.createElement('li');
+    const label = document.createElement('span');
+    label.textContent = `${fmt.format(new Date(s.date + 'T00:00:00'))} — ${s.subject}${s.completed ? '' : ' (planned)'}`;
+    const actions = document.createElement('span');
+    actions.className = 'actions';
+    const edit = document.createElement('button');
+    edit.type = 'button';
+    edit.textContent = 'Edit';
+    edit.addEventListener('click', () => loadSessionIntoForm(s));
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = 'Delete';
+    del.addEventListener('click', async () => {
+      await sb.from('korean_sessions').delete().eq('id', s.id);
+      if (editingSessionId === s.id) resetSessionForm();
+      loadRecentSessions();
+    });
+    actions.append(edit, del);
+    li.append(label, actions);
+    list.append(li);
+  });
+}
+
+function resetSessionForm() {
+  editingSessionId = null;
+  document.getElementById('sDetail').value = '';
+  document.getElementById('sCompleted').checked = true;
+  document.getElementById('addSessionBtn').textContent = 'Add session';
+  document.getElementById('mergeHint').hidden = true;
+}
+
+function loadSessionIntoForm(s) {
+  editingSessionId = s.id;
+  document.getElementById('sDate').value = s.date;
+  document.getElementById('sSubject').value = s.subject;
+  document.getElementById('sDetail').value = s.detail || '';
+  document.getElementById('sCompleted').checked = s.completed;
+  document.getElementById('addSessionBtn').textContent = 'Update session';
+  const hint = document.getElementById('mergeHint');
+  hint.hidden = false;
+  hint.textContent = `Editing the existing ${fmt.format(new Date(s.date + 'T00:00:00'))} "${s.subject}" entry — saving updates it, doesn't duplicate it.`;
+}
+
+document.getElementById('addSessionBtn').addEventListener('click', async () => {
+  clearError('sessionWarning');
+  const date = document.getElementById('sDate').value;
+  const subject = document.getElementById('sSubject').value;
+  const detail = document.getElementById('sDetail').value.trim();
+  const completed = document.getElementById('sCompleted').checked;
+  if (!date || !subject) { showError('sessionWarning', 'Date and subject are required.'); return; }
+
+  if (editingSessionId) {
+    const { error } = await sb.from('korean_sessions').update({ subject, detail, completed }).eq('id', editingSessionId);
+    if (error) { showError('sessionWarning', error.message); return; }
+    resetSessionForm();
+    await loadRecentSessions();
+    return;
+  }
+
+  const { data: existing } = await sb.from('korean_sessions').select('id').eq('date', date).eq('subject', subject).maybeSingle();
+  if (existing) {
+    const { error } = await sb.from('korean_sessions').update({ detail, completed }).eq('id', existing.id);
+    if (error) { showError('sessionWarning', error.message); return; }
+  } else {
+    const { error } = await sb.from('korean_sessions').insert({ date, subject, detail, completed });
+    if (error) { showError('sessionWarning', error.message); return; }
+  }
+  resetSessionForm();
+  await loadRecentSessions();
+});
+
+document.getElementById('loadPlanBtn').addEventListener('click', async () => {
+  clearError('planWarning');
+  const btn = document.getElementById('loadPlanBtn');
+  btn.disabled = true;
+  try {
+    const { error: deleteErr } = await sb.from('korean_sessions').delete()
+      .gte('date', PLAN_START).lte('date', PLAN_END).eq('completed', false);
+    if (deleteErr) throw deleteErr;
+
+    const { data: existing, error: fetchErr } = await sb.from('korean_sessions').select('date,subject').gte('date', PLAN_START).lte('date', PLAN_END);
+    if (fetchErr) throw fetchErr;
+    const existingKeys = new Set((existing || []).map((s) => s.date + '|' + s.subject));
+
+    const rows = PLAN.filter((s) => !existingKeys.has(s.date + '|' + s.subject)).map((s) => ({ ...s, completed: false }));
+    if (rows.length === 0) {
+      showError('planWarning', 'Already loaded — every planned entry already exists.');
+      return;
+    }
+    const { error: insertErr } = await sb.from('korean_sessions').insert(rows);
+    if (insertErr) throw insertErr;
+    const skipped = PLAN.length - rows.length;
+    document.getElementById('planDescription').textContent =
+      `Cleared stale planned entries and loaded ${rows.length} fresh one${rows.length === 1 ? '' : 's'}${skipped ? ` (${skipped} already-completed entries kept as-is)` : ''}. Safe to click again — it won't duplicate or touch anything marked done.`;
+    await loadRecentSessions();
+  } catch (err) {
+    showError('planWarning', err.message || String(err));
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+async function loadGoal() {
+  const { data } = await sb.from('korean_goal').select('*').eq('id', 'default').maybeSingle();
+  if (!data) {
+    document.getElementById('goalStartDate').value = PLAN_START;
+    document.getElementById('goalTargetDate').value = PLAN_END;
+    document.getElementById('goalLevel').value = 'Conversational — ACTFL Intermediate Low/Mid';
+    return;
+  }
+  document.getElementById('goalStartDate').value = data.start_date;
+  document.getElementById('goalTargetDate').value = data.target_date;
+  document.getElementById('goalLevel').value = data.target_level;
+}
+
+document.getElementById('saveGoalBtn').addEventListener('click', async () => {
+  clearError('goalWarning');
+  const start_date = document.getElementById('goalStartDate').value;
+  const target_date = document.getElementById('goalTargetDate').value;
+  const target_level = document.getElementById('goalLevel').value.trim();
+  if (!start_date || !target_date || !target_level) {
+    showError('goalWarning', 'Fill in start date, target date, and target level.');
+    return;
+  }
+  const { error } = await sb.from('korean_goal').upsert({ id: 'default', start_date, target_date, target_level });
+  if (error) showError('goalWarning', error.message);
+});
+
+async function init() {
+  if (!configured) {
+    document.querySelector('main').insertAdjacentHTML('afterbegin', '<div class="warning">Supabase not configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in this file.</div>');
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) await enterApp();
+}
+init();
+</script>
+</body></html>
