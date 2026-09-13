@@ -45,6 +45,13 @@ h2{font-size:1.05rem;letter-spacing:-.01em;margin:0 0 14px}
 .template-day.rest{background:#f0f2f4}
 .template-day.rest .subj{color:var(--muted);font-weight:500}
 
+.resource-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.resource-list li{display:flex;gap:10px;align-items:flex-start;font-size:.85rem;color:var(--muted)}
+.resource-list .r-emoji{font-size:1.1rem;line-height:1.3}
+.resource-list strong{color:var(--ink)}
+.resource-list a{color:var(--accent-dark);font-weight:600;text-decoration:none}
+.resource-list a:hover{text-decoration:underline}
+
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .cal-nav button{font:inherit;border:1px solid var(--line);background:white;border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--ink)}
 .cal-nav button:hover{border-color:var(--accent);color:var(--accent-dark)}
@@ -101,6 +108,16 @@ footer.page a{color:var(--accent-dark)}
 <div class="card">
 <h2>Weekly pattern</h2>
 <div class="template-grid" id="templateGrid"></div>
+</div>
+
+<div class="card">
+<h2>Materials</h2>
+<ul class="resource-list">
+<li><span class="r-emoji">📖</span><div><strong>Grammar spine</strong> — <a href="https://www.howtostudykorean.com" target="_blank" rel="noreferrer">How to Study Korean (HTSK)</a>, free. Intermediate phases switch to a Sogang or Yonsei textbook.</div></li>
+<li><span class="r-emoji">🔤</span><div><strong>Vocabulary</strong> — <a href="https://ankiweb.net/shared/decks/korean" target="_blank" rel="noreferrer">Anki</a> + a Korean frequency deck (free)</div></li>
+<li><span class="r-emoji">🎧</span><div><strong>Listening</strong> — <a href="https://talktomeinkorean.com" target="_blank" rel="noreferrer">Talk To Me In Korean (TTMIK)</a>, free; later, Netflix K-dramas with Korean subtitles</div></li>
+<li><span class="r-emoji">🗣️</span><div><strong>Speaking</strong> — <a href="https://www.italki.com/en/teachers/korean-speaking" target="_blank" rel="noreferrer">italki community tutors</a>, ~$8-15/hr</div></li>
+</ul>
 </div>
 
 <div class="card">
