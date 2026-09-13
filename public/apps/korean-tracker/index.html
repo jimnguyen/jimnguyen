@@ -92,6 +92,11 @@ footer.page a{color:var(--accent-dark)}
 <p>A self-taught, university-style schedule toward conversational speaking ability — updated as I log it.</p>
 </header>
 
+<div class="card" id="todayCard">
+<h2>Today</h2>
+<div id="todayBody"></div>
+</div>
+
 <div class="card">
 <h2>Progress</h2>
 <p class="status" id="goalStatus">Loading&hellip;</p>
@@ -272,19 +277,13 @@ function renderCalendar() {
   }
 }
 
-function renderDayDetail() {
-  const label = document.getElementById('dayDetailLabel');
-  const body = document.getElementById('dayDetailBody');
-  const d = new Date(selectedDate + 'T00:00:00');
-  label.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (selectedDate === todayISO() ? ' (today)' : '');
-
-  body.replaceChildren();
-  const entries = sessionsByDate[selectedDate];
+function renderEntryList(container, entries, emptyText) {
+  container.replaceChildren();
   if (!entries?.length) {
     const p = document.createElement('p');
     p.className = 'empty-day';
-    p.textContent = 'Nothing scheduled for this day.';
-    body.append(p);
+    p.textContent = emptyText;
+    container.append(p);
     return;
   }
   entries.forEach((s) => {
@@ -311,8 +310,19 @@ function renderDayDetail() {
       text.append(detail);
     }
     row.append(emoji, text);
-    body.append(row);
+    container.append(row);
   });
+}
+
+function renderToday() {
+  renderEntryList(document.getElementById('todayBody'), sessionsByDate[todayISO()], "Nothing scheduled today — rest day, or the plan hasn't started yet.");
+}
+
+function renderDayDetail() {
+  const label = document.getElementById('dayDetailLabel');
+  const d = new Date(selectedDate + 'T00:00:00');
+  label.textContent = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (selectedDate === todayISO() ? ' (today)' : '');
+  renderEntryList(document.getElementById('dayDetailBody'), sessionsByDate[selectedDate], 'Nothing scheduled for this day.');
 }
 
 document.getElementById('prevMonth').addEventListener('click', () => {
@@ -335,11 +345,13 @@ async function init() {
     document.getElementById('goalStatus').textContent = 'Supabase not configured yet.';
     renderCalendar();
     renderDayDetail();
+    renderToday();
     return;
   }
   await Promise.all([loadGoalAndProgress(), loadSessions()]);
   renderCalendar();
   renderDayDetail();
+  renderToday();
 }
 
 init();
