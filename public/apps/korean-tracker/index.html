@@ -81,6 +81,12 @@ h2{font-size:1.05rem;letter-spacing:-.01em;margin:0 0 14px}
 
 footer.page{font-size:.8rem;color:var(--muted);margin-top:32px;max-width:720px}
 footer.page a{color:var(--accent-dark)}
+.private-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.private-links a{display:inline-flex;align-items:center;gap:6px;font-size:.85rem;font-weight:700;text-decoration:none;padding:9px 18px;border-radius:999px}
+.private-links a.primary{background:var(--accent);color:white}
+.private-links a.primary:hover{background:var(--accent-dark)}
+.private-links a.secondary{background:none;border:1px solid var(--line);color:var(--ink)}
+.private-links a.secondary:hover{border-color:var(--accent);color:var(--accent-dark)}
 @media(max-width:520px){main{padding:28px 16px}.card{padding:18px 16px}}
 </style>
 </head>
@@ -139,7 +145,13 @@ footer.page a{color:var(--accent-dark)}
 </div>
 </div>
 
-<footer class="page">Live data from my own log &mdash; 📖 grammar, 🔤 vocab, 🎧 listening, 🗣️ speaking, ✍️ review. Faded badges are planned but not yet done. <a href="./log/">I log entries here</a>, and drill vocab with <a href="./flashcards/">spaced-repetition flashcards</a> (both private, sign-in required).</footer>
+<footer class="page">Live data from my own log &mdash; 📖 grammar, 🔤 vocab, 🎧 listening, 🗣️ speaking, ✍️ review. Faded badges are planned but not yet done.
+<div class="private-links">
+<a class="primary" href="./log/">📝 Log entries</a>
+<a class="secondary" href="./flashcards/">🔤 Practice flashcards</a>
+</div>
+<p style="margin:10px 0 0;font-size:.8rem;color:var(--muted)">Both private &mdash; sign-in required.</p>
+</footer>
 </main>
 <script>
 const SUPABASE_URL = 'https://qryyufmmdwybbjtugbhk.supabase.co';
