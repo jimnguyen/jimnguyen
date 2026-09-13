@@ -5,6 +5,7 @@ import apartmentFinderPreview from "@/assets/apartment-finder-preview.webp";
 import dailyAllowancePreview from "@/assets/daily-allowance-preview.webp";
 import workoutTrackerPreview from "@/assets/workout-tracker-preview.webp";
 import koreanTrackerPreview from "@/assets/korean-tracker-preview.webp";
+import pomodoroPreview from "@/assets/pomodoro-preview.webp";
 
 // Each app is a self-contained static page under public/apps/<slug>/index.html
 // (no build step — plain HTML/CSS/JS). To add a new one:
@@ -53,5 +54,13 @@ export const apps: PlaygroundApp[] = [
     emoji: "🇰🇷",
     image: koreanTrackerPreview,
     href: "/apps/korean-tracker/",
+  },
+  {
+    slug: "pomodoro",
+    title: "Pomodoro Timer",
+    description: "A simple, configurable work/break timer with sound, notifications, and a daily session count.",
+    emoji: "⏱️",
+    image: pomodoroPreview,
+    href: "/apps/pomodoro/",
   },
 ];
