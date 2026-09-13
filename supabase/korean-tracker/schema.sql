@@ -24,12 +24,18 @@ alter table korean_sessions enable row level security;
 alter table korean_goal enable row level security;
 
 -- Public read: anyone can view the calendar and progress.
+-- (drop-then-create since CREATE POLICY has no IF NOT EXISTS — safe to
+-- re-run this whole file any time, e.g. after adding a new table below.)
+drop policy if exists "public read korean_sessions" on korean_sessions;
 create policy "public read korean_sessions" on korean_sessions for select using (true);
+drop policy if exists "public read korean_goal" on korean_goal;
 create policy "public read korean_goal" on korean_goal for select using (true);
 
 -- Writes require the same signed-in Supabase Auth user as the other apps.
+drop policy if exists "authenticated write korean_sessions" on korean_sessions;
 create policy "authenticated write korean_sessions" on korean_sessions
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+drop policy if exists "authenticated write korean_goal" on korean_goal;
 create policy "authenticated write korean_goal" on korean_goal
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
@@ -54,5 +60,6 @@ create index if not exists flashcards_recognition_due_idx on flashcards (recogni
 create index if not exists flashcards_production_due_idx on flashcards (production_due);
 
 alter table flashcards enable row level security;
+drop policy if exists "authenticated all flashcards" on flashcards;
 create policy "authenticated all flashcards" on flashcards
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
