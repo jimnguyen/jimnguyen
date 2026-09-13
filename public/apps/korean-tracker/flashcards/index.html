@@ -28,6 +28,8 @@ button{font:inherit;font-weight:700;border:none;border-radius:999px;padding:11px
 button:disabled{opacity:.5;cursor:default}
 .btn-primary{background:var(--accent);color:white}
 .btn-primary:hover:not(:disabled){background:var(--accent-dark)}
+.btn-secondary{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn-secondary:hover:not(:disabled){border-color:var(--accent);color:var(--accent-dark)}
 .btn-block{width:100%;margin-top:18px}
 .btn-link{background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;text-decoration:underline;padding:0;cursor:pointer}
 .btn-link:hover{color:var(--accent-dark)}
@@ -39,17 +41,24 @@ button:disabled{opacity:.5;cursor:default}
 .direction-tabs button.active{background:var(--accent);color:white}
 .due-counts{font-size:.82rem;color:var(--muted);margin:0 0 14px}
 
-.quiz-box{border:1px solid var(--line);border-radius:14px;padding:28px 20px;text-align:center}
-.quiz-progress{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:700;margin:0 0 16px}
-.quiz-front{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0 0 8px}
-.quiz-back{font-size:1.3rem;font-weight:700;color:var(--accent-dark);margin:14px 0 4px}
-.quiz-example{font-size:.9rem;color:var(--muted);font-style:italic}
+#quizArea{margin-top:22px;padding-top:22px;border-top:1px solid var(--line)}
+.quiz-progress{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:700;margin:0 0 14px;text-align:center}
+
+.flip-card{width:100%;height:220px;perspective:1200px;cursor:pointer}
+.flip-card-inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip-card.flipped .flip-card-inner{transform:rotateY(180deg)}
+.flip-card-face{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;background:white}
+.flip-card-back{transform:rotateY(180deg);background:var(--accent-tint);border-color:var(--accent)}
+.quiz-text{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0}
+.quiz-back-text{color:var(--accent-dark)}
+.flip-hint{font-size:.78rem;color:var(--muted);margin:12px 0 0}
+.quiz-example{font-size:.9rem;color:var(--muted);font-style:italic;margin:10px 0 0}
 .quiz-actions{display:flex;gap:10px;justify-content:center;margin-top:20px}
 .btn-correct{background:var(--green-tint);color:var(--green)}
 .btn-correct:hover{background:var(--green);color:white}
 .btn-incorrect{background:var(--red-tint);color:var(--red)}
 .btn-incorrect:hover{background:var(--red);color:white}
-.quiz-done{color:var(--muted);padding:20px 0}
+.quiz-done{color:var(--muted);margin:0 0 4px;text-align:center}
 
 .search-input{margin-bottom:14px}
 ul.cards{list-style:none;margin:0;padding:0;max-height:420px;overflow-y:auto}
@@ -104,6 +113,7 @@ ul.cards li:first-child{border-top:none}
 
 <div class="card">
 <h2>Quiz</h2>
+<div id="quizSetup">
 <p class="due-counts" id="dueCounts">Loading&hellip;</p>
 <div class="direction-tabs">
 <button type="button" class="active" data-direction="mixed">Mixed</button>
@@ -111,23 +121,31 @@ ul.cards li:first-child{border-top:none}
 <button type="button" data-direction="production">Production (Eng→한)</button>
 </div>
 <button type="button" id="startQuizBtn" class="btn-primary btn-block">Start quiz</button>
+</div>
 
 <div id="quizArea" hidden>
-<div class="quiz-box">
 <p class="quiz-progress" id="quizProgress"></p>
-<p class="quiz-front" id="quizFront"></p>
-<div id="quizAnswerArea" hidden>
-<p class="quiz-back" id="quizBack"></p>
+<div class="flip-card" id="flipCard">
+<div class="flip-card-inner" id="flipCardInner">
+<div class="flip-card-face flip-card-front">
+<p class="quiz-text" id="quizFront"></p>
+<p class="flip-hint">Tap to flip</p>
+</div>
+<div class="flip-card-face flip-card-back">
+<p class="quiz-text quiz-back-text" id="quizBack"></p>
 <p class="quiz-example" id="quizExample"></p>
 </div>
-<button type="button" id="showAnswerBtn" class="btn-primary">Show answer</button>
+</div>
+</div>
 <div class="quiz-actions" id="quizGradeButtons" hidden>
 <button type="button" id="incorrectBtn" class="btn-incorrect">Incorrect</button>
 <button type="button" id="correctBtn" class="btn-correct">Correct</button>
 </div>
 </div>
+<div id="quizDone" hidden>
+<p class="quiz-done">All done for now — nothing else due. 🎉</p>
+<button type="button" id="retakeBtn" class="btn-secondary btn-block">Retake this deck anyway</button>
 </div>
-<p class="quiz-done" id="quizDone" hidden>All done for now — nothing else due. 🎉</p>
 </div>
 
 <div class="card">
@@ -176,7 +194,6 @@ function clearError(id) { document.getElementById(id).hidden = true; }
 let allCards = [];
 let currentDirection = 'mixed';
 let quizQueue = [];
-let quizAnswerShown = false;
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
   clearError('loginWarning');
@@ -226,42 +243,59 @@ document.querySelectorAll('.direction-tabs button').forEach((btn) => {
   });
 });
 
-function buildQueue() {
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Shuffle first, then stable-sort by due date — this keeps genuinely
+// overdue cards prioritized first, while cards sharing the same due date
+// (the common case: everything due "today") come out in random order
+// instead of the order they were originally entered.
+function buildQueue(ignoreDue) {
   const today = todayISO();
   const queue = [];
   allCards.forEach((c) => {
-    if ((currentDirection === 'mixed' || currentDirection === 'recognition') && c.recognition_due <= today) {
-      queue.push({ card: c, direction: 'recognition', due: c.recognition_due });
+    if (currentDirection === 'mixed' || currentDirection === 'recognition') {
+      if (ignoreDue || c.recognition_due <= today) queue.push({ card: c, direction: 'recognition', due: c.recognition_due });
     }
-    if ((currentDirection === 'mixed' || currentDirection === 'production') && c.production_due <= today) {
-      queue.push({ card: c, direction: 'production', due: c.production_due });
+    if (currentDirection === 'mixed' || currentDirection === 'production') {
+      if (ignoreDue || c.production_due <= today) queue.push({ card: c, direction: 'production', due: c.production_due });
     }
   });
+  shuffle(queue);
   queue.sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0));
   return queue;
 }
 
-document.getElementById('startQuizBtn').addEventListener('click', () => {
-  quizQueue = buildQueue();
+function beginQuiz(ignoreDue) {
+  quizQueue = buildQueue(ignoreDue);
   document.getElementById('quizDone').hidden = true;
   if (quizQueue.length === 0) {
     document.getElementById('quizArea').hidden = true;
+    document.getElementById('quizSetup').hidden = true;
     document.getElementById('quizDone').hidden = false;
     return;
   }
+  document.getElementById('quizSetup').hidden = true;
   document.getElementById('quizArea').hidden = false;
   renderQuizItem();
-});
+}
+
+document.getElementById('startQuizBtn').addEventListener('click', () => beginQuiz(false));
+document.getElementById('retakeBtn').addEventListener('click', () => beginQuiz(true));
 
 function renderQuizItem() {
   const total = quizQueue.length;
-  quizAnswerShown = false;
-  document.getElementById('quizAnswerArea').hidden = true;
+  document.getElementById('flipCard').classList.remove('flipped');
   document.getElementById('quizGradeButtons').hidden = true;
-  document.getElementById('showAnswerBtn').hidden = false;
 
   if (total === 0) {
     document.getElementById('quizArea').hidden = true;
+    document.getElementById('quizSetup').hidden = false;
     document.getElementById('quizDone').hidden = false;
     renderDueCounts();
     return;
@@ -273,11 +307,9 @@ function renderQuizItem() {
   document.getElementById('quizExample').textContent = item.card.example || '';
 }
 
-document.getElementById('showAnswerBtn').addEventListener('click', () => {
-  quizAnswerShown = true;
-  document.getElementById('quizAnswerArea').hidden = false;
-  document.getElementById('quizGradeButtons').hidden = false;
-  document.getElementById('showAnswerBtn').hidden = true;
+document.getElementById('flipCard').addEventListener('click', function () {
+  const flipped = this.classList.toggle('flipped');
+  if (flipped) document.getElementById('quizGradeButtons').hidden = false;
 });
 
 async function grade(correct) {
