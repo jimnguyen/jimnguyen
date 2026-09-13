@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Korean Flashcards</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{color-scheme:light;--ink:#172d36;--muted:#596b73;--line:#dce3e7;--accent:#ff5c1a;--accent-dark:#e0470c;--accent2:#1ec4ae;--accent-tint:#fff1e9;--green:#1a8a4a;--green-tint:#e9f7ef;--red:#c02f2f;--red-tint:#fdecec}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f8;color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{max-width:560px;margin:auto;padding:44px 24px 80px}
+header{border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--accent2)) 1;padding-bottom:20px;margin-bottom:28px}
+h1{font-size:clamp(1.7rem,5vw,2.2rem);letter-spacing:-.04em;margin:0}
+header p{color:var(--muted);font-size:.95rem;margin:8px 0 0}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:20px}
+.back-link:hover{color:var(--accent-dark)}
+.card{background:white;border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:20px}
+h2{font-size:1.05rem;margin:0 0 14px}
+.hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+label{display:block;margin:16px 0 6px;font-weight:650;font-size:.88rem}
+label:first-of-type{margin-top:0}
+input,select{width:100%;min-width:0;font:inherit;background:white;border:1px solid #becbd3;border-radius:8px;color:var(--ink);padding:10px 12px}
+input:focus-visible,select:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button{font:inherit;font-weight:700;border:none;border-radius:999px;padding:11px 20px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover:not(:disabled){background:var(--accent-dark)}
+.btn-block{width:100%;margin-top:18px}
+.btn-link{background:none;border:none;color:var(--muted);font-size:.85rem;font-weight:600;text-decoration:underline;padding:0;cursor:pointer}
+.btn-link:hover{color:var(--accent-dark)}
+.warning{background:var(--red-tint);color:var(--red);border-radius:10px;padding:11px 14px;font-size:.85rem;font-weight:600;margin-top:14px}
+.who{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:.85rem;color:var(--muted)}
+
+.direction-tabs{display:flex;gap:8px;margin-bottom:16px}
+.direction-tabs button{flex:1;background:var(--accent-tint);color:var(--accent-dark);border-radius:10px}
+.direction-tabs button.active{background:var(--accent);color:white}
+.due-counts{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+
+.quiz-box{border:1px solid var(--line);border-radius:14px;padding:28px 20px;text-align:center}
+.quiz-progress{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:700;margin:0 0 16px}
+.quiz-front{font-size:2rem;font-weight:800;letter-spacing:-.02em;margin:0 0 8px}
+.quiz-back{font-size:1.3rem;font-weight:700;color:var(--accent-dark);margin:14px 0 4px}
+.quiz-example{font-size:.9rem;color:var(--muted);font-style:italic}
+.quiz-actions{display:flex;gap:10px;justify-content:center;margin-top:20px}
+.btn-correct{background:var(--green-tint);color:var(--green)}
+.btn-correct:hover{background:var(--green);color:white}
+.btn-incorrect{background:var(--red-tint);color:var(--red)}
+.btn-incorrect:hover{background:var(--red);color:white}
+.quiz-done{color:var(--muted);padding:20px 0}
+
+.search-input{margin-bottom:14px}
+ul.cards{list-style:none;margin:0;padding:0;max-height:420px;overflow-y:auto}
+ul.cards li{padding:10px 0;border-top:1px solid #edf0f2}
+ul.cards li:first-child{border-top:none}
+.card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card-main .hangul{font-weight:700;font-size:1rem}
+.card-main .english{color:var(--muted);font-size:.85rem}
+.card-main .example{color:var(--muted);font-size:.78rem;font-style:italic;margin-top:2px}
+.card-boxes{font-size:.7rem;color:var(--muted);white-space:nowrap}
+.card-actions{display:flex;gap:8px;flex:none}
+.card-actions button{background:none;border:none;color:var(--muted);font-weight:600;font-size:.78rem;cursor:pointer}
+.card-actions button:hover{color:var(--red)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body><main>
+<a class="back-link" href="../">&larr; Korean Study Tracker</a>
+<header>
+<h1>Flashcards</h1>
+<p>Hangul &harr; English, spaced repetition, tested in both directions.</p>
+</header>
+
+<section id="loginSection" class="card">
+<h2>Sign in</h2>
+<label for="email">Email</label>
+<input id="email" type="email" autocomplete="username">
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password">
+<div id="loginWarning" class="warning" hidden></div>
+<button type="button" id="loginBtn" class="btn-primary btn-block">Sign in</button>
+</section>
+
+<section id="appSection" hidden>
+<div class="who">
+<span id="whoami"></span>
+<button type="button" id="logoutBtn" class="btn-link">Sign out</button>
+</div>
+
+<div class="card">
+<h2>Add a card</h2>
+<div class="row">
+<div><label for="cHangul">Hangul</label><input id="cHangul" type="text" placeholder="사과"></div>
+<div><label for="cEnglish">English</label><input id="cEnglish" type="text" placeholder="apple"></div>
+</div>
+<label for="cExample">Example sentence (optional)</label>
+<input id="cExample" type="text" placeholder="저는 사과를 좋아해요.">
+<div id="cardWarning" class="warning" hidden></div>
+<button type="button" id="addCardBtn" class="btn-primary btn-block">Add card</button>
+</div>
+
+<div class="card">
+<h2>Quiz</h2>
+<p class="due-counts" id="dueCounts">Loading&hellip;</p>
+<div class="direction-tabs">
+<button type="button" class="active" data-direction="mixed">Mixed</button>
+<button type="button" data-direction="recognition">Recognition (한→Eng)</button>
+<button type="button" data-direction="production">Production (Eng→한)</button>
+</div>
+<button type="button" id="startQuizBtn" class="btn-primary btn-block">Start quiz</button>
+
+<div id="quizArea" hidden>
+<div class="quiz-box">
+<p class="quiz-progress" id="quizProgress"></p>
+<p class="quiz-front" id="quizFront"></p>
+<div id="quizAnswerArea" hidden>
+<p class="quiz-back" id="quizBack"></p>
+<p class="quiz-example" id="quizExample"></p>
+</div>
+<button type="button" id="showAnswerBtn" class="btn-primary">Show answer</button>
+<div class="quiz-actions" id="quizGradeButtons" hidden>
+<button type="button" id="incorrectBtn" class="btn-incorrect">Incorrect</button>
+<button type="button" id="correctBtn" class="btn-correct">Correct</button>
+</div>
+</div>
+</div>
+<p class="quiz-done" id="quizDone" hidden>All done for now — nothing else due. 🎉</p>
+</div>
+
+<div class="card">
+<h2>Your cards</h2>
+<input class="search-input" id="cardSearch" type="text" placeholder="Search hangul or English&hellip;">
+<ul class="cards" id="cardList"></ul>
+</div>
+<a class="back-link" href="../">&larr; Back to calendar</a>
+</section>
+</main>
+<script>
+const SUPABASE_URL = 'https://qryyufmmdwybbjtugbhk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFyeXl1Zm1tZHd5YmJqdHVnYmhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5MjgwNDUsImV4cCI6MjEwNDUwNDA0NX0.PgYvgGCrXWIYRFa09gAE41w3-QCLs7Gcdwt5oxAwo_I';
+const configured = !SUPABASE_URL.includes('YOUR-PROJECT') && !SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY');
+const sb = configured ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+function todayISO(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function addDaysISO(iso, n) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return todayISO(d);
+}
+
+// Leitner boxes: box N's interval is BOX_INTERVAL_DAYS[N-1]. Correct answers
+// advance a box (capped at the last one); incorrect answers drop to box 1.
+// Recognition (Hangul shown, recall English) and production (English shown,
+// recall Hangul) are tracked as fully independent box/due pairs per card.
+const BOX_INTERVAL_DAYS = [1, 2, 4, 9, 16];
+function dueDateForBox(box) {
+  const idx = Math.min(Math.max(box, 1), BOX_INTERVAL_DAYS.length) - 1;
+  return addDaysISO(todayISO(), BOX_INTERVAL_DAYS[idx]);
+}
+function gradeUpdate(card, direction, correct) {
+  const boxKey = direction + '_box';
+  const dueKey = direction + '_due';
+  const newBox = correct ? Math.min(card[boxKey] + 1, BOX_INTERVAL_DAYS.length) : 1;
+  return { [boxKey]: newBox, [dueKey]: dueDateForBox(newBox) };
+}
+
+const els = { login: document.getElementById('loginSection'), app: document.getElementById('appSection') };
+function showError(id, message) { const el = document.getElementById(id); el.hidden = false; el.textContent = message; }
+function clearError(id) { document.getElementById(id).hidden = true; }
+
+let allCards = [];
+let currentDirection = 'mixed';
+let quizQueue = [];
+let quizAnswerShown = false;
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  clearError('loginWarning');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) { showError('loginWarning', error.message); return; }
+  await enterApp();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await sb.auth.signOut();
+  els.app.hidden = true;
+  els.login.hidden = false;
+});
+
+async function enterApp() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return;
+  document.getElementById('whoami').textContent = 'Signed in as ' + user.email;
+  els.login.hidden = true;
+  els.app.hidden = false;
+  await loadCards();
+}
+
+async function loadCards() {
+  const { data, error } = await sb.from('flashcards').select('*').order('created_at', { ascending: true });
+  if (error) return;
+  allCards = data || [];
+  renderDueCounts();
+  renderCardList();
+}
+
+function renderDueCounts() {
+  const today = todayISO();
+  const recDue = allCards.filter((c) => c.recognition_due <= today).length;
+  const prodDue = allCards.filter((c) => c.production_due <= today).length;
+  document.getElementById('dueCounts').textContent =
+    `${allCards.length} card${allCards.length === 1 ? '' : 's'} total — ${recDue} due for recognition, ${prodDue} due for production`;
+}
+
+document.querySelectorAll('.direction-tabs button').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.direction-tabs button').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDirection = btn.dataset.direction;
+  });
+});
+
+function buildQueue() {
+  const today = todayISO();
+  const queue = [];
+  allCards.forEach((c) => {
+    if ((currentDirection === 'mixed' || currentDirection === 'recognition') && c.recognition_due <= today) {
+      queue.push({ card: c, direction: 'recognition', due: c.recognition_due });
+    }
+    if ((currentDirection === 'mixed' || currentDirection === 'production') && c.production_due <= today) {
+      queue.push({ card: c, direction: 'production', due: c.production_due });
+    }
+  });
+  queue.sort((a, b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0));
+  return queue;
+}
+
+document.getElementById('startQuizBtn').addEventListener('click', () => {
+  quizQueue = buildQueue();
+  document.getElementById('quizDone').hidden = true;
+  if (quizQueue.length === 0) {
+    document.getElementById('quizArea').hidden = true;
+    document.getElementById('quizDone').hidden = false;
+    return;
+  }
+  document.getElementById('quizArea').hidden = false;
+  renderQuizItem();
+});
+
+function renderQuizItem() {
+  const total = quizQueue.length;
+  quizAnswerShown = false;
+  document.getElementById('quizAnswerArea').hidden = true;
+  document.getElementById('quizGradeButtons').hidden = true;
+  document.getElementById('showAnswerBtn').hidden = false;
+
+  if (total === 0) {
+    document.getElementById('quizArea').hidden = true;
+    document.getElementById('quizDone').hidden = false;
+    renderDueCounts();
+    return;
+  }
+  const item = quizQueue[0];
+  document.getElementById('quizProgress').textContent = `${item.direction === 'recognition' ? 'Recognition' : 'Production'} — ${total} left`;
+  document.getElementById('quizFront').textContent = item.direction === 'recognition' ? item.card.hangul : item.card.english;
+  document.getElementById('quizBack').textContent = item.direction === 'recognition' ? item.card.english : item.card.hangul;
+  document.getElementById('quizExample').textContent = item.card.example || '';
+}
+
+document.getElementById('showAnswerBtn').addEventListener('click', () => {
+  quizAnswerShown = true;
+  document.getElementById('quizAnswerArea').hidden = false;
+  document.getElementById('quizGradeButtons').hidden = false;
+  document.getElementById('showAnswerBtn').hidden = true;
+});
+
+async function grade(correct) {
+  const item = quizQueue.shift();
+  const updates = gradeUpdate(item.card, item.direction, correct);
+  await sb.from('flashcards').update(updates).eq('id', item.card.id);
+  Object.assign(item.card, updates);
+  renderQuizItem();
+}
+document.getElementById('correctBtn').addEventListener('click', () => grade(true));
+document.getElementById('incorrectBtn').addEventListener('click', () => grade(false));
+
+document.getElementById('addCardBtn').addEventListener('click', async () => {
+  clearError('cardWarning');
+  const hangul = document.getElementById('cHangul').value.trim();
+  const english = document.getElementById('cEnglish').value.trim();
+  const example = document.getElementById('cExample').value.trim();
+  if (!hangul || !english) { showError('cardWarning', 'Both Hangul and English are required.'); return; }
+  const today = todayISO();
+  const { error } = await sb.from('flashcards').insert({
+    hangul, english, example,
+    recognition_box: 1, recognition_due: today,
+    production_box: 1, production_due: today,
+  });
+  if (error) { showError('cardWarning', error.message); return; }
+  document.getElementById('cHangul').value = '';
+  document.getElementById('cEnglish').value = '';
+  document.getElementById('cExample').value = '';
+  await loadCards();
+});
+
+function renderCardList() {
+  const search = document.getElementById('cardSearch').value.trim().toLowerCase();
+  const list = document.getElementById('cardList');
+  list.replaceChildren();
+  const filtered = search
+    ? allCards.filter((c) => c.hangul.toLowerCase().includes(search) || c.english.toLowerCase().includes(search))
+    : allCards;
+  filtered.forEach((c) => {
+    const li = document.createElement('li');
+    const row = document.createElement('div');
+    row.className = 'card-row';
+    const mainDiv = document.createElement('div');
+    mainDiv.className = 'card-main';
+    const hangulEl = document.createElement('div');
+    hangulEl.className = 'hangul';
+    hangulEl.textContent = c.hangul;
+    const englishEl = document.createElement('div');
+    englishEl.className = 'english';
+    englishEl.textContent = c.english;
+    mainDiv.append(hangulEl, englishEl);
+    if (c.example) {
+      const exEl = document.createElement('div');
+      exEl.className = 'example';
+      exEl.textContent = c.example;
+      mainDiv.append(exEl);
+    }
+    const boxesEl = document.createElement('div');
+    boxesEl.className = 'card-boxes';
+    boxesEl.textContent = `Rec box ${c.recognition_box} · Prod box ${c.production_box}`;
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = 'Delete';
+    del.addEventListener('click', async () => {
+      await sb.from('flashcards').delete().eq('id', c.id);
+      await loadCards();
+    });
+    actions.append(del);
+    row.append(mainDiv, boxesEl, actions);
+    li.append(row);
+    list.append(li);
+  });
+}
+document.getElementById('cardSearch').addEventListener('input', renderCardList);
+
+async function init() {
+  if (!configured) {
+    document.querySelector('main').insertAdjacentHTML('afterbegin', '<div class="warning">Supabase not configured yet — set SUPABASE_URL and SUPABASE_ANON_KEY in this file.</div>');
+    return;
+  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) await enterApp();
+}
+init();
+</script>
+</body></html>

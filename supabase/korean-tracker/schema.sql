@@ -32,3 +32,27 @@ create policy "authenticated write korean_sessions" on korean_sessions
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 create policy "authenticated write korean_goal" on korean_goal
   for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+
+-- Flashcards: fully private (no public-read policy), unlike the calendar and
+-- goal tables above. There's no showcase value in a raw vocab list, so the
+-- whole thing — browsing, quizzing, adding cards — requires sign-in.
+-- Leitner-box level + due date are tracked separately per direction, since
+-- recognizing a word (Hangul shown) and producing it (English shown) are
+-- different skills that shouldn't share one progress number.
+create table if not exists flashcards (
+  id uuid primary key default gen_random_uuid(),
+  hangul text not null,
+  english text not null,
+  example text not null default '',
+  recognition_box int not null default 1,
+  recognition_due date not null default current_date,
+  production_box int not null default 1,
+  production_due date not null default current_date,
+  created_at timestamptz not null default now()
+);
+create index if not exists flashcards_recognition_due_idx on flashcards (recognition_due);
+create index if not exists flashcards_production_due_idx on flashcards (production_due);
+
+alter table flashcards enable row level security;
+create policy "authenticated all flashcards" on flashcards
+  for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
