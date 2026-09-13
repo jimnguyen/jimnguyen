@@ -18,6 +18,7 @@ header p{color:var(--muted);font-size:.95rem;margin:8px 0 0}
 .card{background:white;border:1px solid var(--line);border-radius:16px;padding:24px 26px;margin-bottom:20px}
 h2{font-size:1.05rem;margin:0 0 14px}
 .hint{font-size:.82rem;color:var(--muted);margin:0 0 14px}
+.duplicate-notice{background:var(--accent-tint);color:var(--accent-dark);border-radius:8px;padding:9px 12px;margin:14px 0 0;font-weight:600}
 label{display:block;margin:16px 0 6px;font-weight:650;font-size:.88rem}
 label:first-of-type{margin-top:0}
 input,select{width:100%;min-width:0;font:inherit;background:white;border:1px solid #becbd3;border-radius:8px;color:var(--ink);padding:10px 12px}
@@ -96,6 +97,7 @@ ul.cards li:first-child{border-top:none}
 </div>
 <label for="cExample">Example sentence (optional)</label>
 <input id="cExample" type="text" placeholder="저는 사과를 좋아해요.">
+<p class="hint duplicate-notice" id="duplicateNotice" hidden></p>
 <div id="cardWarning" class="warning" hidden></div>
 <button type="button" id="addCardBtn" class="btn-primary btn-block">Add card</button>
 </div>
@@ -288,12 +290,42 @@ async function grade(correct) {
 document.getElementById('correctBtn').addEventListener('click', () => grade(true));
 document.getElementById('incorrectBtn').addEventListener('click', () => grade(false));
 
+function findDuplicate(hangul) {
+  const target = hangul.trim();
+  return target ? allCards.find((c) => c.hangul.trim() === target) : null;
+}
+
+let duplicateConfirmed = false;
+
+document.getElementById('cHangul').addEventListener('input', (e) => {
+  duplicateConfirmed = false;
+  const dup = findDuplicate(e.target.value);
+  const notice = document.getElementById('duplicateNotice');
+  const addBtn = document.getElementById('addCardBtn');
+  if (dup) {
+    notice.hidden = false;
+    notice.textContent = `⚠️ Already in your deck: ${dup.hangul} → ${dup.english}`;
+    addBtn.textContent = 'Add anyway';
+  } else {
+    notice.hidden = true;
+    addBtn.textContent = 'Add card';
+  }
+});
+
 document.getElementById('addCardBtn').addEventListener('click', async () => {
   clearError('cardWarning');
   const hangul = document.getElementById('cHangul').value.trim();
   const english = document.getElementById('cEnglish').value.trim();
   const example = document.getElementById('cExample').value.trim();
   if (!hangul || !english) { showError('cardWarning', 'Both Hangul and English are required.'); return; }
+
+  const dup = findDuplicate(hangul);
+  if (dup && !duplicateConfirmed) {
+    duplicateConfirmed = true;
+    document.getElementById('duplicateNotice').textContent = `⚠️ Already in your deck: ${dup.hangul} → ${dup.english}. Click "Add anyway" again to add it regardless.`;
+    return;
+  }
+
   const today = todayISO();
   const { error } = await sb.from('flashcards').insert({
     hangul, english, example,
@@ -301,6 +333,9 @@ document.getElementById('addCardBtn').addEventListener('click', async () => {
     production_box: 1, production_due: today,
   });
   if (error) { showError('cardWarning', error.message); return; }
+  duplicateConfirmed = false;
+  document.getElementById('duplicateNotice').hidden = true;
+  document.getElementById('addCardBtn').textContent = 'Add card';
   document.getElementById('cHangul').value = '';
   document.getElementById('cEnglish').value = '';
   document.getElementById('cExample').value = '';
